@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Lightstep Metrics",
+  "id": "lightstep-metrics-datasource",
+  "metrics": true,
+  "info": {
+    "description": "A datasource for Lightstep metrics",
+    "author": {
+      "name": "Lightstep",
+      "url": "https://lightstep.com/"
+    },
+    "keywords": [
+      "Lightstep",
+      "metrics",
+      "observability",
+      "Change Intelligence",
+      "OpenTelemetry",
+      "OTel",
+      "prometheus",
+      "PromQL",
+      "TQL"
+    ],
+    "logos": {
+      "small": "img/lightstep_logo.svg",
+      "large": "img/lightstep_logo.svg"
+    },
+    "links": [
+      {
+        "name": "Lightstep",
+        "url": "https://lightstep.com"
+      },
+      {
+        "name": "Github",
+        "url": "https://github.com/lightstep/lightstep-metrics-datasource"
+      }
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=7.0.0",
+    "plugins": []
+  },
+  "routes": [
+    {
+      "path": "test",
+      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.apiKey }}"
+        },
+        {
+          "name": "Content-Type",
+          "content": "application/json"
+        }
+      ]
+    },
+    {
+      "path": "query",
+      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/query_timeseries",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.apiKey }}"
+        },
+        {
+          "name": "Content-Type",
+          "content": "application/json"
+        }
+      ]
+    }
+  ]
+}

@@ -31,6 +31,8 @@ type SimpleField = {
   labels?: { [key: string]: string };
 };
 
+const clickMillisPlaceholder = '_click_millis_placeholder_';
+
 export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourceOptions> {
   projectName: string;
   orgName: string;
@@ -103,6 +105,24 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       fields = [{ name: 'Time', type: FieldType.time, values: timestamps }];
 
       query.data.attributes.series.forEach((series: Series) => {
+        // Build out URL for Lightstep Chart Relay page
+        const queries = visibleTargets.map((target) => ({
+          query_name: target.refId,
+          query_type: target.language,
+          [getLanguageProperty(target.language)]: target.text,
+        }));
+        const queryString = {
+          queries,
+          chart_title: 'Grafana Chart',
+          start_micros: options.range.from.valueOf() * 1000,
+          end_micros: options.range.to.valueOf() * 1000,
+          click_millis: clickMillisPlaceholder,
+          source: this.pluginID,
+        };
+
+        // Use Grafana's variable interpolation to get click time
+        const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
+
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
         // will be set as we loop through the series' `points` below.
@@ -110,26 +130,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
           config: {
             links: [
               {
-                onBuildUrl: ({ origin }) => {
-                  const queries = visibleTargets.map((target) => ({
-                    query_name: target.refId,
-                    query_type: target.language,
-                    [getLanguageProperty(target.language)]: target.text,
-                  }));
-                  const queryString = {
-                    queries,
-                    chart_title: 'Grafana Chart',
-                    start_micros: options.range.from.valueOf() * 1000,
-                    end_micros: options.range.to.valueOf() * 1000,
-                    click_millis: timestamps[origin.rowIndex],
-                    source: this.pluginID,
-                  };
-
-                  return `https://app.lightstep.com/${this.projectName}/chart-relay?${stringify(queryString)}`;
-                },
-                // This is essentially a placeholder. Its value will be updated
-                // by the `onBuildUrl` function by the time the user clicks the link.
-                url: `https://app.lightstep.com/${this.projectName}`,
+                url: `https://app.lightstep.com/${this.projectName}/chart-relay?${stringifiedQueryString}`,
                 targetBlank: true,
                 title: 'View what changed in Lightstep',
               },

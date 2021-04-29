@@ -1,6 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export type LightstepQueryLanguage = 'promql' | 'tql';
+export type LightstepQueryLanguage = 'promql';
 export interface LightstepQuery extends DataQuery {
   text: string;
   language: LightstepQueryLanguage;

@@ -4,7 +4,7 @@ import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms, Button } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
-import { defaultQuery, LightstepDataSourceOptions, LightstepQuery, LightstepQueryLanguage } from './types';
+import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
 
 const { FormField } = LegacyForms;
 

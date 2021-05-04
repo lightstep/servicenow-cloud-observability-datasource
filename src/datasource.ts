@@ -278,9 +278,5 @@ function getLanguageProperty(language: LightstepQueryLanguage): string {
   if (language === 'promql') {
     return 'promql_query';
   }
-  if (language === 'tql') {
-    return 'tql_query';
-  }
-
   return '';
 }

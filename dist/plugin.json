@@ -18,8 +18,7 @@
       "OpenTelemetry",
       "OTel",
       "prometheus",
-      "PromQL",
-      "TQL"
+      "PromQL"
     ],
     "logos": {
       "small": "img/lightstep_logo.svg",
@@ -37,7 +36,7 @@
     ],
     "screenshots": [],
     "version": "1.0.0",
-    "updated": "2021-04-22"
+    "updated": "2021-05-04"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",

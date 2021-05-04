@@ -75,7 +75,6 @@ Steps may vary slightly depending on your version of Grafana.
 
 You can now create dashboards and charts in Grafana using metrics sent from Lightstep.
 
-
 ## Create Grafana Charts Using Metrics from Lightstep
 
 With the Lightstep plugin installed, you can query your Lightstep metrics directly from Grafana.
@@ -86,7 +85,7 @@ With the Lightstep plugin installed, you can query your Lightstep metrics direct
 
 2. Enter your query in the **Query Text** field and click **Run Query**.
 
-   You can use Lightstep's Telemetry Query Language (TQL) or [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) for your query.
+   Your query should be written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/).
 
    ![Enter a query](https://github.com/lightstep/lightstep-metrics-datasource/blob/main/images/docs/graf_metciQuery.png)
 

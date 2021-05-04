@@ -18,8 +18,7 @@
       "OpenTelemetry",
       "OTel",
       "prometheus",
-      "PromQL",
-      "TQL"
+      "PromQL"
     ],
     "logos": {
       "small": "img/lightstep_logo.svg",

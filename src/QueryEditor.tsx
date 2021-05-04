@@ -1,19 +1,48 @@
 import defaults from 'lodash/defaults';
 
-import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms, Button } from '@grafana/ui';
+import React, { PureComponent } from 'react';
+import { Button, ButtonCascader, CascaderOption, QueryField } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
 
-const { FormField } = LegacyForms;
-
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
-  onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
+  state = { metrics: [] };
+
+  componentDidMount() {
+    try {
+      this.props.datasource.fetchMetricSuggestions().then((response) => {
+        const metrics = response.data['metric-names'];
+        const metricOptions = metrics.map((metric) => ({
+          label: metric,
+          value: metric,
+        }));
+
+        this.setState({ metrics: metricOptions });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  onQueryChange = (value: string, override?: boolean) => {
+    const { onChange, onRunQuery, query } = this.props;
+
+    if (onChange) {
+      onChange({ ...query, text: value });
+
+      if (override && onRunQuery) {
+        onRunQuery();
+      }
+    }
+  };
+
+  onSelectMetric = (values: string[], selectedOptions: CascaderOption[]) => {
     const { onChange, query } = this.props;
-    onChange({ ...query, text: event.target.value });
+    onChange({ ...query, text: values[0] });
+    this.onQueryChange(values[0], true);
   };
 
   render() {
@@ -22,13 +51,20 @@ export class QueryEditor extends PureComponent<Props> {
 
     return (
       <div className="gf-form">
-        <FormField
-          inputWidth={30}
-          value={text || ''}
-          onChange={this.onQueryTextChange}
-          label="PromQL Query Text"
-          placeholder="Enter a query"
-        />
+        <div className="gf-form flex-shrink-0 min-width-5">
+          <ButtonCascader options={this.state.metrics} onChange={this.onSelectMetric}>
+            {this.state.metrics.length > 0 ? 'Metrics' : '(No metrics found)'}
+          </ButtonCascader>
+        </div>
+
+        <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
+          <QueryField
+            query={text}
+            portalOrigin="lightstep"
+            placeholder="Enter a PromQL query"
+            onChange={this.onQueryChange}
+          />
+        </div>
         <Button onClick={this.props.onRunQuery}>Run Query</Button>
       </div>
     );

@@ -24,3 +24,9 @@ export interface LightstepDataSourceOptions extends DataSourceJsonData {
 export interface LightstepSecureJsonData {
   apiKey?: string;
 }
+
+export type MetricSuggestionsResponse = {
+  data: {
+    ['metric-names']: string[];
+  };
+};

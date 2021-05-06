@@ -35,8 +35,8 @@
       }
     ],
     "screenshots": [],
-    "version": "0.1.0",
-    "updated": "2021-05-05"
+    "version": "0.2.0",
+    "updated": "2021-05-06"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
@@ -60,6 +60,20 @@
     {
       "path": "query",
       "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/query_timeseries",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.apiKey }}"
+        },
+        {
+          "name": "Content-Type",
+          "content": "application/json"
+        }
+      ]
+    },
+    {
+      "path": "telemetry_suggestions",
+      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/telemetry_suggestions",
       "headers": [
         {
           "name": "Authorization",

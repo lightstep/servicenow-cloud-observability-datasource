@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { PureComponent } from 'react';
-import { Button, ButtonCascader, CascaderOption, QueryField } from '@grafana/ui';
+import { ButtonCascader, CascaderOption, QueryField } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
@@ -61,11 +61,12 @@ export class QueryEditor extends PureComponent<Props> {
           <QueryField
             query={text}
             portalOrigin="lightstep"
-            placeholder="Enter a PromQL query"
+            placeholder="Enter a PromQL query (Run with Shift + Enter)"
             onChange={this.onQueryChange}
+            onRunQuery={this.props.onRunQuery}
+            onBlur={this.props.onRunQuery}
           />
         </div>
-        <Button onClick={this.props.onRunQuery}>Run Query</Button>
       </div>
     );
   }

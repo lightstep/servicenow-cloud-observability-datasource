@@ -61,7 +61,7 @@ export class QueryEditor extends PureComponent<Props> {
           <QueryField
             query={text}
             portalOrigin="lightstep"
-            placeholder="Enter a PromQL query"
+            placeholder="Enter a PromQL query (Run with Shift + Enter)"
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
             onBlur={this.props.onRunQuery}

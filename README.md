@@ -83,11 +83,14 @@ With the Lightstep plugin installed, you can query your Lightstep metrics direct
 
    ![Lightstep as data source](https://github.com/lightstep/lightstep-metrics-datasource/blob/main/images/docs/graf_metciSource.png)
 
-2. Enter your query in the **Query Text** field and click **Run Query**.
+2. Use the **Metrics** dropdown to select the metric for your query. ![Select metric](/images/docs/graf_metSelect.png)
 
-   Your query should be written in [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/).
+
+3. Continue adding to your query in the **Metrics** field, using the [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.
 
    ![Enter a query](https://github.com/lightstep/lightstep-metrics-datasource/blob/main/images/docs/graf_metciQuery.png)
+
+   Click out of the field (or press `shift` + `Enter`) to run your query.
 
 3. Choose the visualization for the chart (Lightstep supports either **Graph** or **Time Series**). Click **Apply** to create the graph.
 

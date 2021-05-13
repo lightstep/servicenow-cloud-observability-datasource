@@ -25,8 +25,23 @@ export interface LightstepSecureJsonData {
   apiKey?: string;
 }
 
+// Query Editor types
+
+/**
+ * Response from the metric_suggestions endpoint
+ * */
 export type MetricSuggestionsResponse = {
   data: {
     ['metric-names']: string[];
+  };
+};
+
+/**
+ * Response from the telemetry_labels endpoint
+ * */
+export type LabelSuggestionsResponse = {
+  data: {
+    ['label-key']: string;
+    ['label-values']: string[];
   };
 };

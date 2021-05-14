@@ -106,7 +106,7 @@ When you view the chart and notice a deviation that you'd like to investigate, c
 
 You're taken into Change Intelligence in Lightstep, where you can [start your investigation](https://docs.lightstep.com/docs/investigate-metric-deviation).
 
-![Change Intelligence](/docs/graf_metciPW.png)
+![Change Intelligence](images/docs/graf_metciPW.png)
 
 View the query you made in Grafana by clicking the **View query** button.
 

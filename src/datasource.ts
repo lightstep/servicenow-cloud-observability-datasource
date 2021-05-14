@@ -78,7 +78,12 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     try {
       queries = await Promise.all(queryRequests);
     } catch (error) {
-      throw error;
+      if (error && error.data && error.data.errors && error.data.errors.length > 0) {
+        // display the first error
+        throw { message: error.data.errors[0] };
+      } else {
+        throw error;
+      }
     }
 
     // Declare the variables that we'll use in our nested loops.

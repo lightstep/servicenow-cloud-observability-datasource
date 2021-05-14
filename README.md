@@ -83,7 +83,9 @@ With the Lightstep plugin installed, you can query your Lightstep metrics direct
 
    ![Lightstep as data source](/images/docs/graf_metciSource.png)
 
-2. Use the **Metrics** dropdown to select the metric for your query. ![Select metric](/images/docs/graf_metSelect.png)
+2. Use the **Metrics** dropdown to select the metric for your query. 
+
+   ![Select metric](/images/docs/graf_metSelect.png)
 
 
 3. Continue adding to your query in the **Metrics** field, using the [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) query language.

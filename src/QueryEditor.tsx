@@ -1,19 +1,36 @@
 import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
-import { BracesPlugin, ButtonCascader, CascaderOption, QueryField, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
+import {
+  BracesPlugin,
+  ButtonCascader,
+  CascaderOption,
+  CompletionItem,
+  QueryField,
+  TypeaheadInput,
+  TypeaheadOutput,
+} from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
-type QueryEditorState = {
+interface QueryEditorState {
+  labelNameSuggestions: CompletionItem[];
+  labelValueSuggestions: {
+    [labelName: string]: CompletionItem[];
+  };
   metricOptions: CascaderOption[];
   selectedMetricName: string;
-};
+}
 
 export class QueryEditor extends PureComponent<Props> {
   plugins: Plugin[] = [BracesPlugin()];
-  state: QueryEditorState = { metricOptions: [], selectedMetricName: '' };
+  state: QueryEditorState = {
+    labelNameSuggestions: [],
+    labelValueSuggestions: {},
+    metricOptions: [],
+    selectedMetricName: '',
+  };
 
   componentDidMount() {
     try {
@@ -31,6 +48,16 @@ export class QueryEditor extends PureComponent<Props> {
     }
   }
 
+  clearSelections = () => {
+    const nextState: Partial<QueryEditorState> = {
+      selectedMetricName: '',
+      labelNameSuggestions: [],
+      labelValueSuggestions: {},
+    };
+
+    this.setState(nextState);
+  };
+
   onQueryChange = (value: string, override?: boolean) => {
     const { onChange, onRunQuery, query } = this.props;
 
@@ -38,7 +65,7 @@ export class QueryEditor extends PureComponent<Props> {
       onChange({ ...query, text: value });
 
       if (value === '') {
-        this.setState({ selectedMetricName: '' });
+        this.clearSelections();
       }
 
       if (override && onRunQuery) {
@@ -55,6 +82,36 @@ export class QueryEditor extends PureComponent<Props> {
 
     this.onQueryChange(selectedMetricName, true);
     this.setState({ selectedMetricName });
+
+    // Fetch label suggestions and store them in state
+    this.props.datasource.fetchMetricLabels(selectedMetricName).then((res): void => {
+      const nextState: Partial<QueryEditorState> = {};
+
+      res.data['metric-labels'].forEach((label) => {
+        if (!nextState.labelNameSuggestions) {
+          nextState.labelNameSuggestions = [];
+        }
+        if (!nextState.labelValueSuggestions) {
+          nextState.labelValueSuggestions = {};
+        }
+
+        const labelKey = label['label-key'];
+
+        nextState.labelNameSuggestions.push({
+          label: labelKey,
+          insertText: `${labelKey}=`,
+        });
+
+        nextState.labelValueSuggestions[labelKey] = label['label-values'].map(
+          (value): CompletionItem => ({
+            label: value,
+            insertText: `"${value}"`,
+          })
+        );
+      });
+
+      this.setState(nextState);
+    });
   };
 
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
@@ -94,11 +151,7 @@ export class QueryEditor extends PureComponent<Props> {
         suggestions: [
           {
             label: 'Labels',
-            items: [
-              // Include '=' when inserting the label name
-              { label: 'customer', insertText: 'customer=' },
-              { label: 'method', insertText: 'method=' },
-            ],
+            items: this.state.labelNameSuggestions,
           },
         ],
       };
@@ -113,10 +166,7 @@ export class QueryEditor extends PureComponent<Props> {
       suggestions: [
         {
           label: `Label values for "${labelName}"`,
-          items: [
-            // Include quotes when inserting the label value
-            { label: 'prowool', insertText: '"ProWool"' },
-          ],
+          items: this.state.labelValueSuggestions[labelName],
         },
       ],
     };
@@ -151,10 +201,10 @@ export class QueryEditor extends PureComponent<Props> {
             query={query.text}
             portalOrigin="lightstep"
             placeholder="Enter a PromQL query (Run with Shift + Enter)"
+            onBlur={this.props.onRunQuery}
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
             onTypeahead={this.onTypeahead}
-            onBlur={this.props.onRunQuery}
           />
         </div>
       </div>

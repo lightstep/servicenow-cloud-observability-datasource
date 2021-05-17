@@ -41,7 +41,9 @@ export type MetricSuggestionsResponse = {
  * */
 export type LabelSuggestionsResponse = {
   data: {
-    ['label-key']: string;
-    ['label-values']: string[];
+    ['metric-labels']: {
+      ['label-key']: string;
+      ['label-values']: string[];
+    }[];
   };
 };

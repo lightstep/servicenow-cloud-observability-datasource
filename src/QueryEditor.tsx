@@ -6,6 +6,7 @@ import {
   CascaderOption,
   CompletionItem,
   QueryField,
+  SuggestionsState,
   TypeaheadInput,
   TypeaheadOutput,
 } from '@grafana/ui';
@@ -23,7 +24,7 @@ interface QueryEditorState {
   selectedMetricName: string;
 }
 
-export class QueryEditor extends PureComponent<Props> {
+export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   plugins: Plugin[] = [BracesPlugin()];
   state: QueryEditorState = {
     labelNameSuggestions: [],
@@ -48,14 +49,38 @@ export class QueryEditor extends PureComponent<Props> {
     }
   }
 
+  refreshLabelSuggestions = (metricName: string): void => {
+    // Fetch label suggestions and store them in state
+    this.props.datasource.fetchMetricLabels(metricName).then((res): void => {
+      const labelNameSuggestions: QueryEditorState['labelNameSuggestions'] = [];
+      const labelValueSuggestions: QueryEditorState['labelValueSuggestions'] = {};
+
+      res.data['metric-labels'].forEach((label) => {
+        const labelKey = label['label-key'];
+
+        labelNameSuggestions.push({
+          label: labelKey,
+          insertText: `${labelKey}=`,
+        });
+
+        labelValueSuggestions[labelKey] = label['label-values'].map(
+          (value): CompletionItem => ({
+            label: value,
+            insertText: `"${value}"`,
+          })
+        );
+      });
+
+      this.setState({ labelNameSuggestions, labelValueSuggestions });
+    });
+  };
+
   clearSelections = () => {
-    const nextState: Partial<QueryEditorState> = {
+    this.setState({
       selectedMetricName: '',
       labelNameSuggestions: [],
       labelValueSuggestions: {},
-    };
-
-    this.setState(nextState);
+    });
   };
 
   onQueryChange = (value: string, override?: boolean) => {
@@ -81,37 +106,7 @@ export class QueryEditor extends PureComponent<Props> {
     onChange({ ...query, text: selectedMetricName });
 
     this.onQueryChange(selectedMetricName, true);
-    this.setState({ selectedMetricName });
-
-    // Fetch label suggestions and store them in state
-    this.props.datasource.fetchMetricLabels(selectedMetricName).then((res): void => {
-      const nextState: Partial<QueryEditorState> = {};
-
-      res.data['metric-labels'].forEach((label) => {
-        if (!nextState.labelNameSuggestions) {
-          nextState.labelNameSuggestions = [];
-        }
-        if (!nextState.labelValueSuggestions) {
-          nextState.labelValueSuggestions = {};
-        }
-
-        const labelKey = label['label-key'];
-
-        nextState.labelNameSuggestions.push({
-          label: labelKey,
-          insertText: `${labelKey}=`,
-        });
-
-        nextState.labelValueSuggestions[labelKey] = label['label-values'].map(
-          (value): CompletionItem => ({
-            label: value,
-            insertText: `"${value}"`,
-          })
-        );
-      });
-
-      this.setState(nextState);
-    });
+    this.refreshLabelSuggestions(selectedMetricName);
   };
 
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
@@ -183,6 +178,17 @@ export class QueryEditor extends PureComponent<Props> {
     return cleanedText;
   };
 
+  onWillApplySuggestion = (suggestion: string, state: SuggestionsState): string => {
+    const hasBracket = state.typeaheadText.includes('{');
+
+    // User selected a metric name, so we refresh our labels
+    if (!hasBracket) {
+      this.refreshLabelSuggestions(suggestion);
+    }
+
+    return suggestion;
+  };
+
   render() {
     const query = defaults(this.props.query, defaultQuery);
 
@@ -205,6 +211,7 @@ export class QueryEditor extends PureComponent<Props> {
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
             onTypeahead={this.onTypeahead}
+            onWillApplySuggestion={this.onWillApplySuggestion}
           />
         </div>
       </div>

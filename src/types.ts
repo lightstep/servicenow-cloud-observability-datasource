@@ -36,14 +36,16 @@ export type MetricSuggestionsResponse = {
   };
 };
 
+type LabelSuggestion = {
+  ['label-key']: string;
+  ['label-values']: string[];
+};
+
 /**
  * Response from the telemetry_labels endpoint
  * */
 export type LabelSuggestionsResponse = {
   data: {
-    ['metric-labels']: {
-      ['label-key']: string;
-      ['label-values']: string[];
-    }[];
+    ['metric-labels']: LabelSuggestion[];
   };
 };

@@ -7,9 +7,13 @@ import { DataSource } from './datasource';
 import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
 
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
+type QueryEditorState = {
+  metricOptions: CascaderOption[];
+  selectedMetricName: string;
+};
 
 export class QueryEditor extends PureComponent<Props> {
-  state = { metrics: [] };
+  state: QueryEditorState = { metricOptions: [], selectedMetricName: '' };
 
   componentDidMount() {
     try {
@@ -20,7 +24,7 @@ export class QueryEditor extends PureComponent<Props> {
           value: metric,
         }));
 
-        this.setState({ metrics: metricOptions });
+        this.setState({ metricOptions });
       });
     } catch (error) {
       console.error(error);
@@ -33,6 +37,10 @@ export class QueryEditor extends PureComponent<Props> {
     if (onChange) {
       onChange({ ...query, text: value });
 
+      if (value === '') {
+        this.setState({ selectedMetricName: '' });
+      }
+
       if (override && onRunQuery) {
         onRunQuery();
       }
@@ -41,25 +49,28 @@ export class QueryEditor extends PureComponent<Props> {
 
   onSelectMetric = (values: string[], selectedOptions: CascaderOption[]) => {
     const { onChange, query } = this.props;
-    onChange({ ...query, text: values[0] });
-    this.onQueryChange(values[0], true);
+    const selectedMetricName = values[0];
+
+    onChange({ ...query, text: selectedMetricName });
+
+    this.onQueryChange(selectedMetricName, true);
+    this.setState({ selectedMetricName });
   };
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
-    const { text } = query;
 
     return (
       <div className="gf-form">
         <div className="gf-form flex-shrink-0 min-width-5">
-          <ButtonCascader options={this.state.metrics} onChange={this.onSelectMetric}>
-            {this.state.metrics.length > 0 ? 'Metrics' : '(No metrics found)'}
+          <ButtonCascader options={this.state.metricOptions} onChange={this.onSelectMetric}>
+            {this.state.metricOptions.length > 0 ? 'Metrics' : '(No metrics found)'}
           </ButtonCascader>
         </div>
 
         <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
           <QueryField
-            query={text}
+            query={query.text}
             portalOrigin="lightstep"
             placeholder="Enter a PromQL query (Run with Shift + Enter)"
             onChange={this.onQueryChange}

@@ -21,7 +21,6 @@ interface QueryEditorState {
     [labelName: string]: CompletionItem[];
   };
   metricOptions: CascaderOption[];
-  selectedMetricName: string;
 }
 
 export class QueryEditor extends PureComponent<Props, QueryEditorState> {
@@ -30,7 +29,6 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     labelNameSuggestions: [],
     labelValueSuggestions: {},
     metricOptions: [],
-    selectedMetricName: '',
   };
 
   componentDidMount() {
@@ -77,7 +75,6 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
 
   clearSelections = () => {
     this.setState({
-      selectedMetricName: '',
       labelNameSuggestions: [],
       labelValueSuggestions: {},
     });
@@ -124,7 +121,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       return emptyResult;
     }
 
-    // TODO: Make this logic more robust
+    // Very basic logic to determine what suggestions to use
     const hasBracket = currentLine.includes('{');
     const hasEqualSign = currentLine.includes('=');
 

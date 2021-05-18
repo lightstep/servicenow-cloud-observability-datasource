@@ -221,7 +221,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   }
 
   fetchMetricLabels(metricName: string): Promise<LabelSuggestionsResponse> {
-    return getBackendSrv().get(`${this.url}/labels/${metricName}`);
+    return getBackendSrv().get(`${this.url}/telemetry_labels/${metricName}`);
   }
 }
 

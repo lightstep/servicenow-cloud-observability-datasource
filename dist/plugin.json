@@ -84,6 +84,20 @@
           "content": "application/json"
         }
       ]
+    },
+    {
+      "path": "telemetry_labels",
+      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/telemetry_labels",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .SecureJsonData.apiKey }}"
+        },
+        {
+          "name": "Content-Type",
+          "content": "application/json"
+        }
+      ]
     }
   ]
 }

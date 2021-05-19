@@ -22,11 +22,13 @@ interface QueryEditorState {
   };
   metricOptions: CascaderOption[];
   selectedMetricName: string;
+  errorMessage: string;
 }
 
 export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   plugins: Plugin[] = [BracesPlugin()];
   state: QueryEditorState = {
+    errorMessage: '',
     labelNameSuggestions: [],
     labelValueSuggestions: {},
     metricOptions: [],
@@ -34,45 +36,61 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   };
 
   componentDidMount() {
-    try {
-      this.props.datasource.fetchMetricSuggestions().then((response) => {
+    this.props.datasource
+      .fetchMetricSuggestions()
+      .then((response) => {
         const metrics = response.data['metric-names'];
         const metricOptions = metrics.map((metric) => ({
           label: metric,
           value: metric,
         }));
 
-        this.setState({ metricOptions });
+        this.setState({ metricOptions, errorMessage: '' });
+      })
+      .catch((error) => {
+        console.error(error);
+        this.setState({ errorMessage: error.message });
       });
-    } catch (error) {
-      console.error(error);
+  }
+
+  componentWillUnmount() {
+    // Refresh chart if query is deleted
+    if (this.props.onRunQuery) {
+      this.props.onRunQuery();
     }
   }
 
   refreshLabelSuggestions = (metricName: string): void => {
     // Fetch label suggestions and store them in state
-    this.props.datasource.fetchMetricLabels(metricName).then((res): void => {
-      const labelNameSuggestions: QueryEditorState['labelNameSuggestions'] = [];
-      const labelValueSuggestions: QueryEditorState['labelValueSuggestions'] = {};
+    this.props.datasource
+      .fetchMetricLabels(metricName)
+      .then((res): void => {
+        const labelNameSuggestions: QueryEditorState['labelNameSuggestions'] = [];
+        const labelValueSuggestions: QueryEditorState['labelValueSuggestions'] = {};
 
-      res.data['metric-labels'].forEach((label) => {
-        const labelKey = label['label-key'];
+        res.data['metric-labels'].forEach((label) => {
+          const labelKey = label['label-key'];
 
-        labelNameSuggestions.push({
-          label: labelKey,
-          insertText: `${labelKey}=`,
+          labelNameSuggestions.push({
+            label: labelKey,
+            insertText: `${labelKey}=`,
+          });
+
+          labelValueSuggestions[labelKey] = label['label-values'].map(
+            (value): CompletionItem => ({
+              label: value,
+              insertText: `"${value}"`,
+            })
+          );
         });
 
-        labelValueSuggestions[labelKey] = label['label-values'].map(
-          (value): CompletionItem => ({
-            label: value,
-            insertText: `"${value}"`,
-          })
-        );
+        this.setState({ labelNameSuggestions, labelValueSuggestions, errorMessage: '' });
+      })
+      .catch((error) => {
+        // this.setState({ errorMessage: error?.data?.errors[0]?.message });
+        console.log('error %o', error); // TODO: Remove
+        this.setState({ errorMessage: error.message });
       });
-
-      this.setState({ labelNameSuggestions, labelValueSuggestions });
-    });
   };
 
   clearSelections = () => {
@@ -194,31 +212,40 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     const query = defaults(this.props.query, defaultQuery);
 
     return (
-      <div className="gf-form">
-        <div className="gf-form flex-shrink-0 min-width-5">
-          <ButtonCascader
-            value={[this.state.selectedMetricName]}
-            options={this.state.metricOptions}
-            onChange={this.onSelectMetric}
-          >
-            {this.state.metricOptions.length > 0 ? 'Metrics' : '(No metrics found)'}
-          </ButtonCascader>
+      <div>
+        <div className="gf-form">
+          <div className="gf-form flex-shrink-0 min-width-5">
+            <ButtonCascader
+              value={[this.state.selectedMetricName]}
+              options={this.state.metricOptions}
+              onChange={this.onSelectMetric}
+            >
+              {this.state.metricOptions.length > 0 ? 'Metrics' : '(No metrics found)'}
+            </ButtonCascader>
+          </div>
+
+          <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
+            <QueryField
+              additionalPlugins={this.plugins}
+              cleanText={this.cleanText}
+              query={query.text}
+              portalOrigin="lightstep"
+              placeholder="Enter a PromQL query (Run with Shift + Enter)"
+              onBlur={this.props.onRunQuery}
+              onChange={this.onQueryChange}
+              onRunQuery={this.props.onRunQuery}
+              onTypeahead={this.onTypeahead}
+              onWillApplySuggestion={this.onWillApplySuggestion}
+            />
+          </div>
         </div>
 
-        <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
-          <QueryField
-            additionalPlugins={this.plugins}
-            cleanText={this.cleanText}
-            query={query.text}
-            portalOrigin="lightstep"
-            placeholder="Enter a PromQL query (Run with Shift + Enter)"
-            onBlur={this.props.onRunQuery}
-            onChange={this.onQueryChange}
-            onRunQuery={this.props.onRunQuery}
-            onTypeahead={this.onTypeahead}
-            onWillApplySuggestion={this.onWillApplySuggestion}
-          />
-        </div>
+        {this.state.errorMessage && (
+          // TODO: Firm up error states
+          // One possible state to use here is when the selected metric doesn't
+          // have any label suggestions.
+          <div style={{ color: 'hotpink' }}>{this.state.errorMessage}</div>
+        )}
       </div>
     );
   }

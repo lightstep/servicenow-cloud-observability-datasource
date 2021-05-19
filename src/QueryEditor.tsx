@@ -21,6 +21,7 @@ interface QueryEditorState {
     [labelName: string]: CompletionItem[];
   };
   metricOptions: CascaderOption[];
+  selectedMetricName: string;
 }
 
 export class QueryEditor extends PureComponent<Props, QueryEditorState> {
@@ -29,6 +30,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     labelNameSuggestions: [],
     labelValueSuggestions: {},
     metricOptions: [],
+    selectedMetricName: '',
   };
 
   componentDidMount() {
@@ -77,6 +79,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     this.setState({
       labelNameSuggestions: [],
       labelValueSuggestions: {},
+      selectedMetricName: '',
     });
   };
 
@@ -96,7 +99,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     }
   };
 
-  onSelectMetric = (values: string[], selectedOptions: CascaderOption[]) => {
+  onSelectMetric = (values: string[]) => {
     const { onChange, query } = this.props;
     const selectedMetricName = values[0];
 
@@ -104,6 +107,18 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
 
     this.onQueryChange(selectedMetricName, true);
     this.refreshLabelSuggestions(selectedMetricName);
+    this.setState({ selectedMetricName });
+  };
+
+  cleanText = (s: string) => {
+    // This is the standard PromQL prefix delimiter regex
+    // https://github.com/grafana/grafana/blob/main/public/app/plugins/datasource/prometheus/language_provider.ts#L63
+    const partsRegex = /(="|!="|=~"|!~"|\{|\[|\(|\+|-|\/|\*|%|\^|\band\b|\bor\b|\bunless\b|==|>=|!=|<=|>|<|=|~|,)/;
+    const parts = s.split(partsRegex);
+    const lastPart = parts.pop()!;
+    const cleanedText = lastPart.trimLeft().replace(/"$/, '').replace(/^"/, '');
+
+    return cleanedText;
   };
 
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
@@ -164,23 +179,12 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     };
   };
 
-  cleanText = (s: string) => {
-    // This is the standard PromQL prefix delimiter regex
-    // https://github.com/grafana/grafana/blob/main/public/app/plugins/datasource/prometheus/language_provider.ts#L63
-    const partsRegex = /(="|!="|=~"|!~"|\{|\[|\(|\+|-|\/|\*|%|\^|\band\b|\bor\b|\bunless\b|==|>=|!=|<=|>|<|=|~|,)/;
-    const parts = s.split(partsRegex);
-    const lastPart = parts.pop()!;
-    const cleanedText = lastPart.trimLeft().replace(/"$/, '').replace(/^"/, '');
-
-    return cleanedText;
-  };
-
   onWillApplySuggestion = (suggestion: string, state: SuggestionsState): string => {
     const hasBracket = state.typeaheadText.includes('{');
 
     // User selected a metric name, so we refresh our labels
     if (!hasBracket) {
-      this.refreshLabelSuggestions(suggestion);
+      this.onSelectMetric([suggestion]);
     }
 
     return suggestion;
@@ -192,7 +196,11 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     return (
       <div className="gf-form">
         <div className="gf-form flex-shrink-0 min-width-5">
-          <ButtonCascader options={this.state.metricOptions} onChange={this.onSelectMetric}>
+          <ButtonCascader
+            value={[this.state.selectedMetricName]}
+            options={this.state.metricOptions}
+            onChange={this.onSelectMetric}
+          >
             {this.state.metricOptions.length > 0 ? 'Metrics' : '(No metrics found)'}
           </ButtonCascader>
         </div>

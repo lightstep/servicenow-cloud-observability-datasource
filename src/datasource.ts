@@ -52,18 +52,14 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
    * `frames` will eventually look like the following:
    * [
    *   { name: 'Time', type: FieldType.time, values: [1614196620000, 1614196650000, 1614196680000] },
-   *   { name: '', labels: { customer: 'cat-face' }, type: FieldType.number, values: [6, 9, 12] },
-   *   { name: '', labels: { customer: 'dog-face' }, type: FieldType.number, values: [16, 19, 112] },
+   *   { name: "{ customer: 'cat-face' }", type: FieldType.number, values: [6, 9, 12] },
+   *   { name: "{ customer: 'dog-face' }", type: FieldType.number, values: [16, 19, 112] },
    * ]
    *
    * This format effectively creates "Wide format" data frames, where each field
    * shares the same time index. To quote the docs: "By reusing the time field,
    * we can reduce the amount of data being sent to the browser."
    * See https://grafana.com/docs/grafana/latest/developers/plugins/data-frames/#wide-format
-   *
-   * 📝 The i > 0 fields have empty `name` values because Grafana doesn't like
-   * duplicate values for that field. It will fill in a default name for us,
-   * though.
    */
   async query(options: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     const frames: DataFrame[] = [];
@@ -141,8 +137,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               },
             ],
           },
-          labels: transformLabels(series['group-labels']),
-          name: '',
+          name: generateFieldName(series['group-labels'], visibleTargets[i].text),
           type: FieldType.number,
           values: new Array(timestamps.length).fill(null),
         };
@@ -162,7 +157,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       frames.push(
         new MutableDataFrame({
           fields,
-          name: `${visibleTargets[i].refId}-Series`,
           refId: visibleTargets[i].refId,
         })
       );
@@ -222,18 +216,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 }
 
 /**
- * Transforms 'key=value' strings to { key: 'value' } objects
- * @param  {Array<string>} groupLabels
- */
-export function transformLabels(groupLabels: string[] = []) {
-  return groupLabels.reduce((acc: { [key: string]: string }, val) => {
-    const [labelKey, labelValue] = val.split('=');
-    acc[labelKey] = labelValue;
-    return acc;
-  }, {});
-}
-
-/**
  * Produces a sorted array of timestamps from every point in every series in the query.
  * @param  {QueryResponse} query
  */
@@ -288,4 +270,21 @@ function getLanguageProperty(language: LightstepQueryLanguage): string {
     return 'promql_query';
   }
   return '';
+}
+
+/**
+ * Format labels for charts
+ * */
+export function generateFieldName(groupLabels: string[], queryText: string) {
+  if (!groupLabels || groupLabels.length === 0) {
+    return queryText;
+  }
+
+  const formattedLabels = groupLabels
+    .sort((a, b) => a.localeCompare(b))
+    // Surround label value in double quotes (e.g. 'key=value' => 'key="value"')
+    .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
+    .join(', ');
+
+  return `{${formattedLabels}}`;
 }

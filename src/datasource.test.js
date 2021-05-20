@@ -1,4 +1,4 @@
-import { generateSortedTimestamps, generateTimestampMap, transformLabels } from './datasource.ts';
+import { generateFieldName, generateSortedTimestamps, generateTimestampMap } from './datasource.ts';
 
 describe('generateSortedTimestamps', () => {
   test('should compile and sort all timestamps across all series', () => {
@@ -44,15 +44,34 @@ describe('generateTimestampMap', () => {
   });
 });
 
-describe('transformLabels', () => {
-  test('should transform labels from string array to an object', () => {
-    const labels = ['key=value', 'key2=value2'];
-    const transformedLabels = { key: 'value', key2: 'value2' };
+describe('generateFieldName', () => {
+  test('should return field name string sorted by label key', () => {
+    // Single label
+    let groupLabels = ['customer=Lightstep'];
+    let expectedFieldName = '{customer="Lightstep"}';
 
-    expect(transformLabels(labels)).toEqual(transformedLabels);
+    expect(generateFieldName(groupLabels)).toBe(expectedFieldName);
 
-    // Check edges
-    expect(transformLabels([])).toEqual({});
-    expect(transformLabels()).toEqual({});
+    // Many labels
+    groupLabels = ['customer=LS', 'service=api', 'method=/pay'];
+    expectedFieldName = '{customer="LS", method="/pay", service="api"}';
+
+    expect(generateFieldName(groupLabels)).toBe(expectedFieldName);
+  });
+
+  test('should return query text', () => {
+    const queryText = 'Query text';
+    expect(generateFieldName(null, queryText)).toBe(queryText);
+
+    const emptyLabels = [];
+    expect(generateFieldName(emptyLabels, queryText)).toBe(queryText);
+  });
+
+  // Edge case
+  test('should handle "=" in label value', () => {
+    const label = 'compare=true==true';
+    const expectedName = '{compare="true==true"}';
+
+    expect(generateFieldName([label])).toBe(expectedName);
   });
 });

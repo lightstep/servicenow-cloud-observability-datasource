@@ -36,7 +36,7 @@
     ],
     "screenshots": [],
     "version": "0.3.0",
-    "updated": "2021-05-18"
+    "updated": "2021-05-20"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
@@ -87,7 +87,7 @@
     },
     {
       "path": "telemetry_labels",
-      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/telemetry_labels",
+      "url": "https://api.lightstep.com/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry_labels",
       "headers": [
         {
           "name": "Authorization",

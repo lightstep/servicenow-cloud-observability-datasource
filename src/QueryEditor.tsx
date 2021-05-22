@@ -87,8 +87,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         this.setState({ labelNameSuggestions, labelValueSuggestions, errorMessage: '' });
       })
       .catch((error) => {
-        // this.setState({ errorMessage: error?.data?.errors[0]?.message });
-        console.log('error %o', error); // TODO: Remove
+        this.setState({ errorMessage: error?.data?.errors[0]?.message });
         this.setState({ errorMessage: error.message });
       });
   };
@@ -244,7 +243,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
           // TODO: Firm up error states
           // One possible state to use here is when the selected metric doesn't
           // have any label suggestions.
-          <div style={{ color: 'hotpink' }}>{this.state.errorMessage}</div>
+          <div style={{ color: 'yellow' }}>{this.state.errorMessage}</div>
         )}
       </div>
     );

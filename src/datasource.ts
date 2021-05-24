@@ -11,7 +11,13 @@ import {
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { stringify } from 'qs';
 
-import { LightstepDataSourceOptions, LightstepQuery, LightstepQueryLanguage, MetricSuggestionsResponse } from './types';
+import {
+  LabelSuggestionsResponse,
+  LightstepDataSourceOptions,
+  LightstepQuery,
+  LightstepQueryLanguage,
+  MetricSuggestionsResponse,
+} from './types';
 import { intervalToSeconds } from './rangeUtilPolyfill';
 
 // Internal types for this class
@@ -212,6 +218,10 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
   fetchMetricSuggestions(): Promise<MetricSuggestionsResponse> {
     return getBackendSrv().get(`${this.url}/telemetry_suggestions`);
+  }
+
+  fetchMetricLabels(metricName: string): Promise<LabelSuggestionsResponse> {
+    return getBackendSrv().get(`${this.url}/telemetry_labels/${metricName}`);
   }
 }
 

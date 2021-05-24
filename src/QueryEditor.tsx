@@ -88,7 +88,6 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       })
       .catch((error) => {
         this.setState({ errorMessage: error?.data?.errors[0]?.message });
-        this.setState({ errorMessage: error.message });
       });
   };
 

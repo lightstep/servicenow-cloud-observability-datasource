@@ -49,7 +49,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       })
       .catch((error) => {
         console.error(error);
-        this.setState({ errorMessage: error.message });
+        const errorMessage = error?.data?.errors[0]?.message ?? error.message ?? 'Unexpected Error';
+        this.setState({ errorMessage: errorMessage });
       });
   }
 
@@ -87,7 +88,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         this.setState({ labelNameSuggestions, labelValueSuggestions, errorMessage: '' });
       })
       .catch((error) => {
-        this.setState({ errorMessage: error?.data?.errors[0]?.message });
+        const errorMessage = error?.data?.errors[0]?.message ?? error.message ?? 'Unexpected Error';
+        this.setState({ errorMessage: errorMessage });
       });
   };
 

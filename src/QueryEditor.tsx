@@ -5,6 +5,7 @@ import {
   ButtonCascader,
   CascaderOption,
   CompletionItem,
+  DOMUtil,
   QueryField,
   SuggestionsState,
   TypeaheadInput,
@@ -24,6 +25,11 @@ interface QueryEditorState {
   selectedMetricName: string;
   errorMessage: string;
 }
+
+// Context values
+const metricsContext = 'context-metrics';
+const labelsContext = 'context-labels';
+const labelValuesContext = 'context-label-values';
 
 export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   plugins: Plugin[] = [BracesPlugin()];
@@ -72,17 +78,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         res.data['metric-labels'].forEach((label) => {
           const labelKey = label['label-key'];
 
-          labelNameSuggestions.push({
-            label: labelKey,
-            insertText: `${labelKey}=`,
-          });
-
-          labelValueSuggestions[labelKey] = label['label-values'].map(
-            (value): CompletionItem => ({
-              label: value,
-              insertText: `"${value}"`,
-            })
-          );
+          labelNameSuggestions.push({ label: labelKey });
+          labelValueSuggestions[labelKey] = label['label-values'].map((value): CompletionItem => ({ label: value }));
         });
 
         this.setState({ labelNameSuggestions, labelValueSuggestions, errorMessage: '' });
@@ -118,10 +115,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   };
 
   onSelectMetric = (values: string[]) => {
-    const { onChange, query } = this.props;
     const selectedMetricName = values[0];
-
-    onChange({ ...query, text: selectedMetricName });
 
     this.onQueryChange(selectedMetricName, true);
     this.refreshLabelSuggestions(selectedMetricName);
@@ -161,6 +155,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     // Metric names
     if (!hasBracket) {
       return {
+        context: metricsContext,
         suggestions: [
           {
             label: 'Metrics',
@@ -173,6 +168,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     // Label Names
     if (!hasEqualSign) {
       return {
+        context: labelsContext,
         suggestions: [
           {
             label: 'Labels',
@@ -188,6 +184,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     const labelName = currentLine.slice(openBracketIndex + 1, equalSignIndex);
 
     return {
+      context: labelValuesContext,
       suggestions: [
         {
           label: `Label values for "${labelName}"`,
@@ -197,12 +194,42 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     };
   };
 
-  onWillApplySuggestion = (suggestion: string, state: SuggestionsState): string => {
-    const hasBracket = state.typeaheadText.includes('{');
+  onWillApplySuggestion = (suggestion: string, suggestionsState: SuggestionsState): string => {
+    console.log('suggestionsState %o', suggestionsState); // TODO: Remove
 
-    // User selected a metric name, so we refresh our labels
-    if (!hasBracket) {
-      this.onSelectMetric([suggestion]);
+    // Modify suggestion based on context
+    switch (suggestionsState.typeaheadContext) {
+      case metricsContext: {
+        this.refreshLabelSuggestions(suggestion);
+        this.setState({ selectedMetricName: suggestion });
+        break;
+      }
+
+      case labelsContext: {
+        const nextChar = DOMUtil.getNextCharacter();
+
+        console.log('nextChar %o', nextChar); // TODO: Remove
+
+        if (!nextChar || nextChar === '}' || nextChar === ',') {
+          suggestion += '=';
+        }
+
+        console.log('suggestion %o', suggestion); // TODO: Remove
+        break;
+      }
+
+      case labelValuesContext: {
+        // Always add quotes and remove existing ones instead
+        if (!suggestionsState.typeaheadText.match(/^(!?=~?"|")/)) {
+          suggestion = `"${suggestion}`;
+        }
+        if (DOMUtil.getNextCharacter() !== '"') {
+          suggestion = `${suggestion}"`;
+        }
+        break;
+      }
+
+      default:
     }
 
     return suggestion;

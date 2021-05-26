@@ -1,6 +1,6 @@
 {
   "name": "lightstep-metrics-datasource",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "A datasource for Lightstep metrics",
   "scripts": {
     "build": "grafana-toolkit plugin:build",

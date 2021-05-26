@@ -122,17 +122,32 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     this.setState({ selectedMetricName });
   };
 
+  /**
+   * The return value is what the typeahead filter operates on, and is what's
+   * highlighted in the typeahead dropdowns.
+   * */
   cleanText = (s: string) => {
     // This is the standard PromQL prefix delimiter regex
     // https://github.com/grafana/grafana/blob/main/public/app/plugins/datasource/prometheus/language_provider.ts#L63
     const partsRegex = /(="|!="|=~"|!~"|\{|\[|\(|\+|-|\/|\*|%|\^|\band\b|\bor\b|\bunless\b|==|>=|!=|<=|>|<|=|~|,)/;
     const parts = s.split(partsRegex);
     const lastPart = parts.pop()!;
-    const cleanedText = lastPart.trimLeft().replace(/"$/, '').replace(/^"/, '');
+
+    let cleanedText = lastPart.trimLeft().replace(/^"/, '');
+    const invalidSuffixRegex = /["})]/;
+
+    // Shave off invalid trailing characters: ", } and )
+    while (cleanedText.match(invalidSuffixRegex)) {
+      cleanedText = cleanedText.slice(0, -1);
+    }
 
     return cleanedText;
   };
 
+  /**
+   * Callback used to generate typeahead suggestions. The items returned from
+   * this method are what will populate the typeahead suggestions dropdown.
+   * */
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
     const emptyResult: TypeaheadOutput = { suggestions: [] };
     const { value } = typeahead;
@@ -194,9 +209,11 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     };
   };
 
+  /**
+   * Fired when a typeahead suggestion is selected. The return value of this
+   * method gets placed in the query.
+   * */
   onWillApplySuggestion = (suggestion: string, suggestionsState: SuggestionsState): string => {
-    console.log('suggestionsState %o', suggestionsState); // TODO: Remove
-
     // Modify suggestion based on context
     switch (suggestionsState.typeaheadContext) {
       case metricsContext: {
@@ -207,20 +224,17 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
 
       case labelsContext: {
         const nextChar = DOMUtil.getNextCharacter();
-
-        console.log('nextChar %o', nextChar); // TODO: Remove
-
         if (!nextChar || nextChar === '}' || nextChar === ',') {
           suggestion += '=';
         }
-
-        console.log('suggestion %o', suggestion); // TODO: Remove
         break;
       }
 
       case labelValuesContext: {
         // Always add quotes and remove existing ones instead
-        if (!suggestionsState.typeaheadText.match(/^(!?=~?"|")/)) {
+        // 📝 NOTE: This regex is rather generous. It's possible we'll want to
+        // firm it up in the future.
+        if (!suggestionsState.typeaheadText.match(/="/)) {
           suggestion = `"${suggestion}`;
         }
         if (DOMUtil.getNextCharacter() !== '"') {

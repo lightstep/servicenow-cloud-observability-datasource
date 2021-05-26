@@ -223,6 +223,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       }
 
       case labelsContext: {
+        // ⚠️  Heads up, DOMUtil is experimental and could cause errors in the
+        // future.
         const nextChar = DOMUtil.getNextCharacter();
         if (!nextChar || nextChar === '}' || nextChar === ',') {
           suggestion += '=';

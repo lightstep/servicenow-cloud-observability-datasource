@@ -5,6 +5,7 @@ import {
   ButtonCascader,
   CascaderOption,
   CompletionItem,
+  DOMUtil,
   QueryField,
   SuggestionsState,
   TypeaheadInput,
@@ -24,6 +25,11 @@ interface QueryEditorState {
   selectedMetricName: string;
   errorMessage: string;
 }
+
+// Context values
+const metricsContext = 'context-metrics';
+const labelsContext = 'context-labels';
+const labelValuesContext = 'context-label-values';
 
 export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   plugins: Plugin[] = [BracesPlugin()];
@@ -72,17 +78,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         res.data['metric-labels'].forEach((label) => {
           const labelKey = label['label-key'];
 
-          labelNameSuggestions.push({
-            label: labelKey,
-            insertText: `${labelKey}=`,
-          });
-
-          labelValueSuggestions[labelKey] = label['label-values'].map(
-            (value): CompletionItem => ({
-              label: value,
-              insertText: `"${value}"`,
-            })
-          );
+          labelNameSuggestions.push({ label: labelKey });
+          labelValueSuggestions[labelKey] = label['label-values'].map((value): CompletionItem => ({ label: value }));
         });
 
         this.setState({ labelNameSuggestions, labelValueSuggestions, errorMessage: '' });
@@ -118,27 +115,39 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   };
 
   onSelectMetric = (values: string[]) => {
-    const { onChange, query } = this.props;
     const selectedMetricName = values[0];
-
-    onChange({ ...query, text: selectedMetricName });
 
     this.onQueryChange(selectedMetricName, true);
     this.refreshLabelSuggestions(selectedMetricName);
     this.setState({ selectedMetricName });
   };
 
+  /**
+   * The return value is what the typeahead filter operates on, and is what's
+   * highlighted in the typeahead dropdowns.
+   * */
   cleanText = (s: string) => {
     // This is the standard PromQL prefix delimiter regex
     // https://github.com/grafana/grafana/blob/main/public/app/plugins/datasource/prometheus/language_provider.ts#L63
     const partsRegex = /(="|!="|=~"|!~"|\{|\[|\(|\+|-|\/|\*|%|\^|\band\b|\bor\b|\bunless\b|==|>=|!=|<=|>|<|=|~|,)/;
     const parts = s.split(partsRegex);
     const lastPart = parts.pop()!;
-    const cleanedText = lastPart.trimLeft().replace(/"$/, '').replace(/^"/, '');
+
+    let cleanedText = lastPart.trimLeft().replace(/^"/, '');
+    const invalidSuffixRegex = /["})]/;
+
+    // Shave off invalid trailing characters: ", } and )
+    while (cleanedText.match(invalidSuffixRegex)) {
+      cleanedText = cleanedText.slice(0, -1);
+    }
 
     return cleanedText;
   };
 
+  /**
+   * Callback used to generate typeahead suggestions. The items returned from
+   * this method are what will populate the typeahead suggestions dropdown.
+   * */
   onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
     const emptyResult: TypeaheadOutput = { suggestions: [] };
     const { value } = typeahead;
@@ -161,6 +170,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     // Metric names
     if (!hasBracket) {
       return {
+        context: metricsContext,
         suggestions: [
           {
             label: 'Metrics',
@@ -173,6 +183,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     // Label Names
     if (!hasEqualSign) {
       return {
+        context: labelsContext,
         suggestions: [
           {
             label: 'Labels',
@@ -188,6 +199,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     const labelName = currentLine.slice(openBracketIndex + 1, equalSignIndex);
 
     return {
+      context: labelValuesContext,
       suggestions: [
         {
           label: `Label values for "${labelName}"`,
@@ -197,12 +209,43 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     };
   };
 
-  onWillApplySuggestion = (suggestion: string, state: SuggestionsState): string => {
-    const hasBracket = state.typeaheadText.includes('{');
+  /**
+   * Fired when a typeahead suggestion is selected. The return value of this
+   * method gets placed in the query.
+   * */
+  onWillApplySuggestion = (suggestion: string, suggestionsState: SuggestionsState): string => {
+    // Modify suggestion based on context
+    switch (suggestionsState.typeaheadContext) {
+      case metricsContext: {
+        this.refreshLabelSuggestions(suggestion);
+        this.setState({ selectedMetricName: suggestion });
+        break;
+      }
 
-    // User selected a metric name, so we refresh our labels
-    if (!hasBracket) {
-      this.onSelectMetric([suggestion]);
+      case labelsContext: {
+        // ⚠️  Heads up, DOMUtil is experimental and could cause errors in the
+        // future.
+        const nextChar = DOMUtil.getNextCharacter();
+        if (!nextChar || nextChar === '}' || nextChar === ',') {
+          suggestion += '=';
+        }
+        break;
+      }
+
+      case labelValuesContext: {
+        // Always add quotes and remove existing ones instead
+        // 📝 NOTE: This regex is rather generous. It's possible we'll want to
+        // firm it up in the future.
+        if (!suggestionsState.typeaheadText.match(/="/)) {
+          suggestion = `"${suggestion}`;
+        }
+        if (DOMUtil.getNextCharacter() !== '"') {
+          suggestion = `${suggestion}"`;
+        }
+        break;
+      }
+
+      default:
     }
 
     return suggestion;

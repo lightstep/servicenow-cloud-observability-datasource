@@ -14,7 +14,7 @@ Change Intelligence determines the service that emitted a metric, searches for p
 
 You'll need the following to enable and use the plugin:
 
-- A Grafana account (version 7.2.2 and greater)
+- A Grafana account (version 7 and greater)
 
   **NOTE:** _The plugin only supports graph and time series charts._
 

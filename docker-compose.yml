@@ -13,5 +13,5 @@ services:
       - grafana-data-lmd:/var/lib/grafana
       - ./dist:/var/lib/grafana/plugins/lightstep-metrics-datasource
 volumes:
-  grafana-data:
+  grafana-data-lmd:
     external: true

@@ -59,7 +59,7 @@ It's possible to use the `docker-compose.yml` file in this repo to quickly insta
 First, create a named volume so settings and dashboards will persist across container launches:
 
 ```
-  $ docker volume create grafana-data 
+  $ docker volume create grafana-data-lmd
 ```
 
 Next, run docker compose: `docker compose up` — the plugin now will be able to be installed on the Grafana instance that runs on `localhost:3000`.

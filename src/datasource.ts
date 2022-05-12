@@ -116,7 +116,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         const queries = visibleTargets.map((target) => ({
           query_name: target.refId,
           query_type: target.language,
-          [getLanguageProperty(target.language)]: target.text,
+          [getLanguageProperty(target.language)]: getTemplateSrv().replace(target.text, options.scopedVars),
         }));
         const queryString = {
           queries,

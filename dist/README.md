@@ -52,6 +52,18 @@ grafana-cli plugins install lightstep-metrics-datasource
 
 2. Install the plugin by extracting the archive to the Grafana `grafana-plugins` directory.
 
+### Install with Docker
+
+It's possible to use the `docker-compose.yml` file in this repo to quickly install this plugin in a new instance of Grafana for development or testing.
+
+First, create a named volume so settings and dashboards will persist across container launches:
+
+```
+  $ docker volume create grafana-data-lmd
+```
+
+Next, run docker compose: `docker compose up` — the plugin now will be able to be installed on the Grafana instance that runs on `localhost:3000`.
+
 ## Enable the Lightstep Plugin in Grafana
 
 After you install the plugin, follow these steps:
@@ -114,3 +126,4 @@ View the query you made in Grafana by clicking the **View query** button.
 ![View Grafana query](https://github.com/lightstep/lightstep-metrics-datasource/raw/main/images/docs/graf_metciViewQuery.png)
 
 <!-- TODO: add a link to the Learning Path for Prom+Grafana, once available -->
+

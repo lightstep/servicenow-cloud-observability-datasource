@@ -4706,14 +4706,13 @@ function (_super) {
 
   DataSource.prototype.query = function (options) {
     return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, Promise, function () {
-      var frames, visibleTargets, queryRequests, queries, error_1, field, fields, timestampIndex, timestamps, timestampToIndexMap;
+      var visibleTargets, queryRequests, queries, error_1;
 
       var _this = this;
 
       return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
         switch (_a.label) {
           case 0:
-            frames = [];
             visibleTargets = options.targets.filter(function (query) {
               return query.text && !query.hide;
             });
@@ -4752,78 +4751,7 @@ function (_super) {
             , 4];
 
           case 4:
-            // Aggregate data frames and fields for each query.
-            // Cheat sheet:
-            // Grafana data frame ~= Lightstep query
-            // Grafana field ~= Lightstep series
-            queries.forEach(function (query, i) {
-              // If this is an empty query, bail 👋
-              if (!query.data.attributes.series) {
-                return;
-              }
-
-              timestamps = generateSortedTimestamps(query);
-              timestampToIndexMap = generateTimestampMap(timestamps); // Every data frame needs a time Field, which we add here during assignment
-
-              fields = [{
-                name: 'Time',
-                type: _grafana_data__WEBPACK_IMPORTED_MODULE_1__["FieldType"].time,
-                values: timestamps
-              }];
-              query.data.attributes.series.forEach(function (series) {
-                // Build out URL for Lightstep Chart Relay page
-                var queries = visibleTargets.map(function (target) {
-                  var _a;
-
-                  return _a = {
-                    query_name: target.refId,
-                    query_type: target.language
-                  }, _a[getLanguageProperty(target.language)] = Object(_grafana_runtime__WEBPACK_IMPORTED_MODULE_2__["getTemplateSrv"])().replace(target.text, options.scopedVars), _a;
-                });
-                var queryString = {
-                  queries: queries,
-                  chart_title: 'Grafana Chart',
-                  start_micros: options.range.from.valueOf() * 1000,
-                  end_micros: options.range.to.valueOf() * 1000,
-                  click_millis: clickMillisPlaceholder,
-                  source: _this.pluginID
-                }; // Use Grafana's variable interpolation to get click time
-
-                var stringifiedQueryString = Object(qs__WEBPACK_IMPORTED_MODULE_3__["stringify"])(queryString).replace(clickMillisPlaceholder, '${__value.time}'); // Each series will get its own Field
-                // The field's values are initially set to `null`. The actual values
-                // will be set as we loop through the series' `points` below.
-
-                field = {
-                  config: {
-                    links: [{
-                      url: "https://app.lightstep.com/" + _this.projectName + "/chart-relay?" + stringifiedQueryString,
-                      targetBlank: true,
-                      title: 'View what changed in Lightstep'
-                    }]
-                  },
-                  name: generateFieldName(series['group-labels'], visibleTargets[i].text),
-                  type: _grafana_data__WEBPACK_IMPORTED_MODULE_1__["FieldType"].number,
-                  values: new Array(timestamps.length).fill(null)
-                };
-                series.points.forEach(function (_a) {
-                  var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
-                      timestamp = _b[0],
-                      value = _b[1];
-
-                  timestampIndex = timestampToIndexMap.get(timestamp);
-
-                  if (timestampIndex !== undefined) {
-                    field.values[timestampIndex] = value;
-                  }
-                });
-                fields.push(field);
-              }); // Each query gets its own DataFrame
-
-              frames.push(new _grafana_data__WEBPACK_IMPORTED_MODULE_1__["MutableDataFrame"]({
-                fields: fields,
-                refId: visibleTargets[i].refId
-              }));
-            });
+            frames = this.buildQuery(queries, visibleTargets, options);
             return [2
             /*return*/
             , {
@@ -4834,8 +4762,83 @@ function (_super) {
     });
   };
 
+  DataSource.prototype.buildQuery = function (queries, visibleTargets, options) {
+    var _this = this; // Declare the variables that we'll use in our nested loops.
+
+
+    var frames = [];
+    var field;
+    var fields;
+    var timestampIndex;
+    var timestamps;
+    var timestampToIndexMap; // Aggregate data frames and fields for each query.
+    // Cheat sheet:
+    // Grafana data frame ~= Lightstep query
+    // Grafana field ~= Lightstep series
+
+    queries.forEach(function (query, i) {
+      // If this is an empty query, bail 👋
+      if (!query.data.attributes.series) {
+        return;
+      }
+
+      timestamps = generateSortedTimestamps(query);
+      timestampToIndexMap = generateTimestampMap(timestamps); // Every data frame needs a time Field, which we add here during assignment
+
+      fields = [{
+        name: 'Time',
+        type: _grafana_data__WEBPACK_IMPORTED_MODULE_1__["FieldType"].time,
+        values: timestamps
+      }];
+      query.data.attributes.series.forEach(function (series) {
+        // Build out URL for Lightstep Chart Relay page
+        var _a = _this.queryFields(visibleTargets, options, _this.pluginID),
+            queryString = _a.queryString,
+            queries = _a.queries; // Use Grafana's variable interpolation to get click time
+
+
+        var stringifiedQueryString = Object(qs__WEBPACK_IMPORTED_MODULE_3__["stringify"])(queryString).replace(clickMillisPlaceholder, '${__value.time}');
+        console.log(queries); // Each series will get its own Field
+        // The field's values are initially set to `null`. The actual values
+        // will be set as we loop through the series' `points` below.
+
+        field = {
+          config: {
+            links: [{
+              url: "https://app.lightstep.com/" + _this.projectName + "/chart-relay?" + stringifiedQueryString,
+              targetBlank: true,
+              title: 'View what changed in Lightstep'
+            }]
+          },
+          name: generateFieldName(series['group-labels'], visibleTargets[i].text),
+          type: _grafana_data__WEBPACK_IMPORTED_MODULE_1__["FieldType"].number,
+          values: new Array(timestamps.length).fill(null)
+        };
+        series.points.forEach(function (_a) {
+          var _b = Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__read"])(_a, 2),
+              timestamp = _b[0],
+              value = _b[1];
+
+          timestampIndex = timestampToIndexMap.get(timestamp);
+
+          if (timestampIndex !== undefined) {
+            field.values[timestampIndex] = value;
+          }
+        });
+        console.log(field);
+        fields.push(field);
+      }); // Each query gets its own DataFrame
+
+      frames.push(new _grafana_data__WEBPACK_IMPORTED_MODULE_1__["MutableDataFrame"]({
+        fields: fields,
+        refId: visibleTargets[i].refId
+      }));
+    });
+    return frames;
+  };
+
   DataSource.prototype.doRequest = function (query, options) {
-    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, void 0, function () {
+    return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__awaiter"])(this, void 0, Promise, function () {
       var email, hashedEmail, queryWithVars, attributes;
       return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__generator"])(this, function (_a) {
         switch (_a.label) {
@@ -4868,6 +4871,30 @@ function (_super) {
         }
       });
     });
+  };
+
+  DataSource.prototype.queryFields = function (visibleTargets, options, pluginID) {
+    console.log(Object(_grafana_runtime__WEBPACK_IMPORTED_MODULE_2__["getTemplateSrv"])());
+    var queries = visibleTargets.map(function (target) {
+      var _a;
+
+      return _a = {
+        query_name: target.refId,
+        query_type: target.language
+      }, _a[getLanguageProperty(target.language)] = Object(_grafana_runtime__WEBPACK_IMPORTED_MODULE_2__["getTemplateSrv"])().replace(target.text, options.scopedVars), _a;
+    });
+    var queryString = {
+      queries: queries,
+      chart_title: 'Grafana Chart',
+      start_micros: options.range.from.valueOf() * 1000,
+      end_micros: options.range.to.valueOf() * 1000,
+      click_millis: clickMillisPlaceholder,
+      source: pluginID
+    };
+    return {
+      queryString: queryString,
+      queries: queries
+    };
   };
 
   DataSource.prototype.testDatasource = function () {

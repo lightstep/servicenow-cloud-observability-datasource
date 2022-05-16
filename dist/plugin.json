@@ -36,7 +36,7 @@
     ],
     "screenshots": [],
     "version": "1.0.0",
-    "updated": "2022-05-13"
+    "updated": "2022-05-16"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",

@@ -120,11 +120,11 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
       query.data.attributes.series.forEach((series: Series) => {
         // Build out URL for Lightstep Chart Relay page
-        const { queryString, queries } = this.queryFields(visibleTargets, options, this.pluginID);
+        const {queryString, queries} = this.queryFields(visibleTargets, options, this.pluginID);
 
         // Use Grafana's variable interpolation to get click time
-        const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
-        console.log(queries);
+
+        const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder,'${__value.time}');
 
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
@@ -188,8 +188,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       },
     });
   }
-  public queryFields(visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>, pluginID: string) {
-    console.log(getTemplateSrv());
+  public queryFields(visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>, pluginID: string){
     const queries = visibleTargets.map((target) => ({
       query_name: target.refId,
       query_type: target.language,

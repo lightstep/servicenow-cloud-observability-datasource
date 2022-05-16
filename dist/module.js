@@ -4797,8 +4797,7 @@ function (_super) {
             queries = _a.queries; // Use Grafana's variable interpolation to get click time
 
 
-        var stringifiedQueryString = Object(qs__WEBPACK_IMPORTED_MODULE_3__["stringify"])(queryString).replace(clickMillisPlaceholder, '${__value.time}');
-        console.log(queries); // Each series will get its own Field
+        var stringifiedQueryString = Object(qs__WEBPACK_IMPORTED_MODULE_3__["stringify"])(queryString).replace(clickMillisPlaceholder, '${__value.time}'); // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
         // will be set as we loop through the series' `points` below.
 
@@ -4874,7 +4873,6 @@ function (_super) {
   };
 
   DataSource.prototype.queryFields = function (visibleTargets, options, pluginID) {
-    console.log(Object(_grafana_runtime__WEBPACK_IMPORTED_MODULE_2__["getTemplateSrv"])());
     var queries = visibleTargets.map(function (target) {
       var _a;
 

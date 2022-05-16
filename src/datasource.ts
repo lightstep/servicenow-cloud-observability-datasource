@@ -68,12 +68,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
    * See https://grafana.com/docs/grafana/latest/developers/plugins/data-frames/#wide-format
    */
   async query(options: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
-    const frames: DataFrame[] = [];
-
     // Make requests for non-empty, non-hidden queries
     const visibleTargets = options.targets.filter((query) => query.text && !query.hide);
     const queryRequests = visibleTargets.map((query) => this.doRequest(query, options));
-
     let queries: QueryResponse[];
 
     // Gather our response data
@@ -88,7 +85,12 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       }
     }
 
+    return { data: this.buildQuery(queries, visibleTargets, options) };
+  }
+
+  buildQuery(queries: QueryResponse[], visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>) {
     // Declare the variables that we'll use in our nested loops.
+    const frames: DataFrame[] = [];
     let field: SimpleField;
     let fields: SimpleField[];
     let timestampIndex: number | undefined;
@@ -113,20 +115,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
       query.data.attributes.series.forEach((series: Series) => {
         // Build out URL for Lightstep Chart Relay page
-        const queries = visibleTargets.map((target) => ({
-          query_name: target.refId,
-          query_type: target.language,
-          [getLanguageProperty(target.language)]: target.text,
-        }));
-        const queryString = {
-          queries,
-          chart_title: 'Grafana Chart',
-          start_micros: options.range.from.valueOf() * 1000,
-          end_micros: options.range.to.valueOf() * 1000,
-          click_millis: clickMillisPlaceholder,
-          source: this.pluginID,
-        };
-
+        const { queryString } = this.queryFields(visibleTargets, options, this.pluginID);
         // Use Grafana's variable interpolation to get click time
         const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
 
@@ -155,7 +144,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
             field.values[timestampIndex] = value;
           }
         });
-
         fields.push(field);
       });
 
@@ -167,11 +155,10 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         })
       );
     });
-
-    return { data: frames };
+    return frames;
   }
 
-  async doRequest(query: LightstepQuery, options: DataQueryRequest) {
+  async doRequest(query: LightstepQuery, options: DataQueryRequest): Promise<any> {
     const { email } = config.bootData.user;
     const hashedEmail = await hashEmail(email);
     const queryWithVars = getTemplateSrv().replace(query.text, options.scopedVars);
@@ -192,7 +179,22 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       },
     });
   }
-
+  queryFields(visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>, pluginID: string) {
+    const queries = visibleTargets.map((target) => ({
+      query_name: target.refId,
+      query_type: target.language,
+      [getLanguageProperty(target.language)]: getTemplateSrv().replace(target.text, options.scopedVars),
+    }));
+    const queryString = {
+      queries,
+      chart_title: 'Grafana Chart',
+      start_micros: options.range.from.valueOf() * 1000,
+      end_micros: options.range.to.valueOf() * 1000,
+      click_millis: clickMillisPlaceholder,
+      source: pluginID,
+    };
+    return { queryString, queries };
+  }
   testDatasource() {
     // Reject if required fields are missing
     if (this.orgName === '') {

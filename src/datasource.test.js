@@ -1,4 +1,5 @@
-import { generateFieldName, generateSortedTimestamps, generateTimestampMap } from './datasource.ts';
+import { generateFieldName, generateSortedTimestamps, generateTimestampMap, DataSource } from './datasource.ts';
+import { DataSourceWithBackend, setTemplateSrv } from '@grafana/runtime';
 
 describe('generateSortedTimestamps', () => {
   test('should compile and sort all timestamps across all series', () => {
@@ -73,5 +74,65 @@ describe('generateFieldName', () => {
     const expectedName = '{compare="true==true"}';
 
     expect(generateFieldName([label])).toBe(expectedName);
+  });
+});
+
+//validate that the Grafana Template Vars are correctly replaced for Lightstep Change Intelligence in the query() func
+describe('validateQueryFields', () => {
+  // setup a test template server to mimic the real implementation
+  const settings  = {
+    jsonData:{},
+    meta: {},
+  };
+  const ds = new DataSource(settings);
+  setTemplateSrv({
+    getVariables() {
+      return [];
+    },
+    replace(target, scopedVars, format) {
+      if (target === '$sensor') {
+        return JSON.stringify(['a', 'b', 'c']);
+      }
+      return target || '';
+    },
+  });
+
+  test('should validate the query field matches the value from Grafana template variable', () =>{
+    const  testQuery = [{
+      text: 'requests{customer=hipcore}',
+      refId: 'testName',
+      language: 'promql',
+    }];
+    const options = {
+      range: {
+        from: 0,
+        to: 0,
+      }
+    }
+    const expectedResult = {
+        "queries": [
+           {
+            "promql_query": "requests{customer=hipcore}",
+             "query_name": "testName",
+             "query_type": "promql",
+           },
+         ],
+         "queryString": {
+           "chart_title": "Grafana Chart",
+           "click_millis": "_click_millis_placeholder_",
+           "end_micros": 0,
+           "queries": [
+             {
+              "promql_query": "requests{customer=hipcore}",
+               "query_name": "testName",
+               "query_type": "promql",
+             },
+           ],
+           "source": "lightstep-metrics-datasource",
+           "start_micros": 0,
+         },
+       };
+
+  expect(ds.queryFields(testQuery,options,'lightstep-metrics-datasource')).toStrictEqual(expectedResult);
   });
 });

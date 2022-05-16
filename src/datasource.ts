@@ -144,7 +144,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
             field.values[timestampIndex] = value;
           }
         });
-        console.log(field);
         fields.push(field);
       });
 

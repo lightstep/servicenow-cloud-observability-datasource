@@ -32,4 +32,4 @@ e2e-results/
 .DS_Store
 
 # generated plugin
-.dist
+dist/

@@ -31,3 +31,5 @@ e2e-results/
 # mac
 .DS_Store
 
+# generated plugin
+.dist

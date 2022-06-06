@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
 import {
   BracesPlugin,
-  ButtonCascader,
   CascaderOption,
   CompletionItem,
   DOMUtil,
@@ -257,38 +256,17 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     return (
       <div>
         <div className="gf-form">
-          <div className="gf-form flex-shrink-0 min-width-5">
-            <ButtonCascader
-              value={[this.state.selectedMetricName]}
-              options={this.state.metricOptions}
-              onChange={this.onSelectMetric}
-            >
-              {this.state.metricOptions.length > 0 ? 'Metrics' : '(No metrics found)'}
-            </ButtonCascader>
-          </div>
-
-          <div className="gf-form gf-form--grow flex-shrink-1 min-width-15">
+          {this.props.query.language === 'tql' && (
             <QueryField
-              additionalPlugins={this.plugins}
-              cleanText={this.cleanText}
               query={query.text}
               portalOrigin="lightstep"
-              placeholder="Enter a PromQL query (Run with Shift + Enter)"
+              placeholder="Enter a TQL query (Run with Shift + Enter)"
               onBlur={this.props.onRunQuery}
               onChange={this.onQueryChange}
               onRunQuery={this.props.onRunQuery}
-              onTypeahead={this.onTypeahead}
-              onWillApplySuggestion={this.onWillApplySuggestion}
             />
-          </div>
+          )}
         </div>
-
-        {this.state.errorMessage && (
-          // TODO: Firm up error states
-          // One possible state to use here is when the selected metric doesn't
-          // have any label suggestions.
-          <div style={{ color: 'yellow' }}>{this.state.errorMessage}</div>
-        )}
       </div>
     );
   }

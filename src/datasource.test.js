@@ -99,9 +99,9 @@ describe('validateQueryFields', () => {
 
   test('should validate the query field matches the value from Grafana template variable', () =>{
     const  testQuery = [{
-      text: 'requests{customer=hipcore}',
+      text: 'metric requests',
       refId: 'testName',
-      language: 'promql',
+      language: 'tql',
     }];
     const options = {
       range: {
@@ -112,9 +112,9 @@ describe('validateQueryFields', () => {
     const expectedResult = {
         "queries": [
            {
-            "promql_query": "requests{customer=hipcore}",
-             "query_name": "testName",
-             "query_type": "promql",
+            "tql_query": "metric requests",
+            "query_name": "testName",
+            "query_type": "tql",
            },
          ],
          "queryString": {
@@ -123,9 +123,9 @@ describe('validateQueryFields', () => {
            "end_micros": 0,
            "queries": [
              {
-              "promql_query": "requests{customer=hipcore}",
-               "query_name": "testName",
-               "query_type": "promql",
+              "tql_query": "metric requests",
+              "query_name": "testName",
+              "query_type": "tql",
              },
            ],
            "source": "lightstep-metrics-datasource",

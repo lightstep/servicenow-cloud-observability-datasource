@@ -1,13 +1,13 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export type LightstepQueryLanguage = 'promql';
+export type LightstepQueryLanguage = 'tql';
 export interface LightstepQuery extends DataQuery {
   text: string;
   language: LightstepQueryLanguage;
 }
 
 export const defaultQuery: Partial<LightstepQuery> = {
-  language: 'promql',
+  language: 'tql',
 };
 
 /**
@@ -16,6 +16,7 @@ export const defaultQuery: Partial<LightstepQuery> = {
 export interface LightstepDataSourceOptions extends DataSourceJsonData {
   orgName: string;
   projectName: string;
+  apiHost: string;
 }
 
 /**

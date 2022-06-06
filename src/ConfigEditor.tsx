@@ -26,6 +26,14 @@ export class ConfigEditor extends PureComponent<Props, State> {
     };
     onOptionsChange({ ...options, jsonData });
   };
+  onAPIHostChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      apiHost: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
 
   // Secure field (only sent to the backend)
   onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +88,16 @@ export class ConfigEditor extends PureComponent<Props, State> {
             inputWidth={inputWidth}
             onChange={this.onProjectNameChange}
             value={jsonData.projectName || ''}
+          />
+        </div>
+
+        <div className="gf-form">
+          <FormField
+            label="API Host"
+            labelWidth={labelWidth}
+            inputWidth={inputWidth}
+            onChange={this.onAPIHostChange}
+            value={jsonData.apiHost || 'api.lightstep.com'}
           />
         </div>
 

@@ -278,8 +278,8 @@ async function hashEmail(email: string) {
  * Generate the appropriate query string property for a given target language.
  * */
 function getLanguageProperty(language: LightstepQueryLanguage): string {
-  if (language === 'promql') {
-    return 'promql_query';
+  if (language === 'tql') {
+    return 'tql_query';
   }
   return '';
 }

@@ -44,15 +44,13 @@ grafana-cli plugins install lightstep-metrics-datasource
 
 ### Install Manually
 
-1. Download the zip file from GitHub.
+1. Download the zip file from GitHub releases page.
 
    ```sh
-   https://github.com/lightstep/lightstep-metrics-datasource/archive/refs/heads/main.zip
+   https://github.com/lightstep/lightstep-metrics-datasource/releases
    ```
 
-2. Install the plugin by extracting the archive to the Grafana `grafana-plugins` directory.
-
-### Install with Docker
+### Develop with Docker
 
 It's possible to use the `docker-compose.yml` file in this repo to quickly install this plugin in a new instance of Grafana for development or testing.
 
@@ -60,6 +58,8 @@ First, create a named volume so settings and dashboards will persist across cont
 
 ```
   $ docker volume create grafana-data-lmd
+  # build the plugin
+  $ yarn install && yarn build
 ```
 
 Next, run docker compose: `docker compose up` — the plugin now will be able to be installed on the Grafana instance that runs on `localhost:3000`.

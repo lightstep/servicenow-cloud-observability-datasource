@@ -11,13 +11,7 @@ import {
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { stringify } from 'qs';
 
-import {
-  LabelSuggestionsResponse,
-  LightstepDataSourceOptions,
-  LightstepQuery,
-  LightstepQueryLanguage,
-  MetricSuggestionsResponse,
-} from './types';
+import { LightstepDataSourceOptions, LightstepQuery, LightstepQueryLanguage } from './types';
 import { intervalToSeconds } from './rangeUtilPolyfill';
 
 // Internal types for this class
@@ -76,7 +70,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     // Gather our response data
     try {
       queries = await Promise.all(queryRequests);
-    } catch (error) {
+    } catch (error: any) {
       if (error && error.data && error.data.errors && error.data.errors.length > 0) {
         // display the first error
         throw { message: error.data.errors[0] };
@@ -169,8 +163,10 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       'input-language': query.language,
       'output-period': intervalToSeconds(options.interval),
     };
-
-    return getBackendSrv().post(`${this.url}/query`, {
+    const url = query.projectName
+      ? `${this.url}/projects/${query.projectName}/telemetry/query_timeseries`
+      : `${this.url}/query`;
+    return getBackendSrv().post(url, {
       data: {
         attributes,
         anonymized_user: hashedEmail,
@@ -195,6 +191,15 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     };
     return { queryString, queries };
   }
+
+  fetchProjects() {
+    return getBackendSrv().get(`${this.url}/projects`);
+  }
+
+  defaultProjectName(): string {
+    return this.projectName;
+  }
+
   testDatasource() {
     // Reject if required fields are missing
     if (this.orgName === '') {
@@ -216,14 +221,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
         return { status: 'error', message: error.data.message };
       });
-  }
-
-  fetchMetricSuggestions(): Promise<MetricSuggestionsResponse> {
-    return getBackendSrv().get(`${this.url}/telemetry_suggestions`);
-  }
-
-  fetchMetricLabels(metricName: string): Promise<LabelSuggestionsResponse> {
-    return getBackendSrv().get(`${this.url}/telemetry_labels/${metricName}`);
   }
 }
 

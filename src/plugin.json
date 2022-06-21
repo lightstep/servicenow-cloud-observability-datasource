@@ -72,22 +72,8 @@
       ]
     },
     {
-      "path": "telemetry_suggestions",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/telemetry_suggestions",
-      "headers": [
-        {
-          "name": "Authorization",
-          "content": "Bearer {{ .SecureJsonData.apiKey }}"
-        },
-        {
-          "name": "Content-Type",
-          "content": "application/json"
-        }
-      ]
-    },
-    {
-      "path": "telemetry_labels",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/telemetry_labels",
+      "path": "projects",
+      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects",
       "headers": [
         {
           "name": "Authorization",

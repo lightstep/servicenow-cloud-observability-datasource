@@ -2,13 +2,17 @@ import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
 export type LightstepQueryLanguage = 'tql';
 export interface LightstepQuery extends DataQuery {
+  projectName: string;
   text: string;
   language: LightstepQueryLanguage;
 }
 
-export const defaultQuery: Partial<LightstepQuery> = {
-  language: 'tql',
-};
+export function defaultQuery(projectName: string): Partial<LightstepQuery> {
+  return {
+    projectName,
+    language: 'tql',
+  };
+}
 
 /**
  * These are options configured for each DataSource instance
@@ -25,28 +29,3 @@ export interface LightstepDataSourceOptions extends DataSourceJsonData {
 export interface LightstepSecureJsonData {
   apiKey?: string;
 }
-
-// Query Editor types
-
-/**
- * Response from the metric_suggestions endpoint
- * */
-export type MetricSuggestionsResponse = {
-  data: {
-    ['metric-names']: string[];
-  };
-};
-
-type LabelSuggestion = {
-  ['label-key']: string;
-  ['label-values']: string[];
-};
-
-/**
- * Response from the telemetry_labels endpoint
- * */
-export type LabelSuggestionsResponse = {
-  data: {
-    ['metric-labels']: LabelSuggestion[];
-  };
-};

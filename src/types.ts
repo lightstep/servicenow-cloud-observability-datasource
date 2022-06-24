@@ -4,6 +4,7 @@ export type LightstepQueryLanguage = 'tql';
 export interface LightstepQuery extends DataQuery {
   projectName: string;
   text: string;
+  format: string;
   language: LightstepQueryLanguage;
 }
 

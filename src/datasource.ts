@@ -64,6 +64,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   async query(options: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     // Make requests for non-empty, non-hidden queries
     const visibleTargets = options.targets.filter((query) => query.text && !query.hide);
+    const legendFormats = options.targets.map((q) => q.format);
     const queryRequests = visibleTargets.map((query) => this.doRequest(query, options));
     let queries: QueryResponse[];
 
@@ -79,10 +80,15 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       }
     }
 
-    return { data: this.buildQuery(queries, visibleTargets, options) };
+    return { data: this.buildQuery(queries, visibleTargets, legendFormats, options) };
   }
 
-  buildQuery(queries: QueryResponse[], visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>) {
+  buildQuery(
+    queries: QueryResponse[],
+    visibleTargets: LightstepQuery[],
+    legendFormats: string[],
+    options: DataQueryRequest<LightstepQuery>
+  ) {
     // Declare the variables that we'll use in our nested loops.
     const frames: DataFrame[] = [];
     let field: SimpleField;
@@ -113,6 +119,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         // Use Grafana's variable interpolation to get click time
         const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
 
+        // Get the legend title override, if exists
+        const legendFormat = legendFormats[i];
+
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
         // will be set as we loop through the series' `points` below.
@@ -126,7 +135,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               },
             ],
           },
-          name: generateFieldName(series['group-labels'], visibleTargets[i].text),
+          name: generateFieldName(series['group-labels'], visibleTargets[i].text, legendFormat, options),
           type: FieldType.number,
           values: new Array(timestamps.length).fill(null),
         };
@@ -284,7 +293,16 @@ function getLanguageProperty(language: LightstepQueryLanguage): string {
 /**
  * Format labels for charts
  * */
-export function generateFieldName(groupLabels: string[], queryText: string) {
+export function generateFieldName(
+  groupLabels: string[],
+  queryText: string,
+  legendFormat: string,
+  options: DataQueryRequest<LightstepQuery>
+) {
+  if (legendFormat) {
+    return getTemplateSrv().replace(legendFormat, options?.scopedVars);
+  }
+
   if (!groupLabels || groupLabels.length === 0) {
     return queryText;
   }

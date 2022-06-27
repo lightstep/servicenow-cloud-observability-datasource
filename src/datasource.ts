@@ -115,7 +115,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
       query.data.attributes.series.forEach((series: Series) => {
         // Build out URL for Lightstep Chart Relay page
-        const { queryString } = this.queryFields(visibleTargets, options, this.pluginID);
+        const queryString = this.notebookQueryFields(visibleTargets, options, this.pluginID);
         // Use Grafana's variable interpolation to get click time
         const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
 
@@ -129,9 +129,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
           config: {
             links: [
               {
-                url: `https://app.lightstep.com/${this.projectName}/chart-relay?${stringifiedQueryString}`,
+                url: `https://app-meta.lightstep.com/${this.projectName}/notebooks?${stringifiedQueryString}`,
                 targetBlank: true,
-                title: 'View what changed in Lightstep',
+                title: 'Create a Notebook in Lightstep',
               },
             ],
           },
@@ -184,21 +184,18 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       },
     });
   }
-  queryFields(visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>, pluginID: string) {
-    const queries = visibleTargets.map((target) => ({
-      query_name: target.refId,
-      query_type: target.language,
-      [getLanguageProperty(target.language)]: getTemplateSrv().replace(target.text, options.scopedVars),
-    }));
+
+  notebookQueryFields(visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>, pluginID: string) {
+    const tql_query = visibleTargets.map((target) => getTemplateSrv().replace(target.text, options.scopedVars));
     const queryString = {
-      queries,
-      chart_title: 'Grafana Chart',
+      tql_query,
+      title: 'Grafana Chart',
       start_micros: options.range.from.valueOf() * 1000,
       end_micros: options.range.to.valueOf() * 1000,
       click_millis: clickMillisPlaceholder,
       source: pluginID,
     };
-    return { queryString, queries };
+    return queryString;
   }
 
   fetchProjects() {

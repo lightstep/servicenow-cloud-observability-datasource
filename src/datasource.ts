@@ -11,7 +11,7 @@ import {
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { stringify } from 'qs';
 
-import { LightstepDataSourceOptions, LightstepQuery, LightstepQueryLanguage } from './types';
+import { LightstepDataSourceOptions, LightstepQuery } from './types';
 import { intervalToSeconds } from './rangeUtilPolyfill';
 
 // Internal types for this class
@@ -129,7 +129,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
           config: {
             links: [
               {
-                url: `https://app-meta.lightstep.com/${this.projectName}/notebooks?${stringifiedQueryString}`,
+                url: `https://app.lightstep.com/${this.projectName}/notebooks?${stringifiedQueryString}`,
                 targetBlank: true,
                 title: 'Create a Notebook in Lightstep',
               },
@@ -275,16 +275,6 @@ async function hashEmail(email: string) {
     // Unable to hash email
     return '';
   }
-}
-
-/**
- * Generate the appropriate query string property for a given target language.
- * */
-function getLanguageProperty(language: LightstepQueryLanguage): string {
-  if (language === 'tql') {
-    return 'tql_query';
-  }
-  return '';
 }
 
 /**

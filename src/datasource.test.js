@@ -80,8 +80,8 @@ describe('generateFieldName', () => {
 //validate that the Grafana Template Vars are correctly replaced for Lightstep Change Intelligence in the query() func
 describe('validateQueryFields', () => {
   // setup a test template server to mimic the real implementation
-  const settings  = {
-    jsonData:{},
+  const settings = {
+    jsonData: {},
     meta: {},
   };
   const ds = new DataSource(settings);
@@ -97,42 +97,28 @@ describe('validateQueryFields', () => {
     },
   });
 
-  test('should validate the query field matches the value from Grafana template variable', () =>{
-    const  testQuery = [{
-      text: 'metric requests',
-      refId: 'testName',
-      language: 'tql',
-    }];
+  test('should validate the query field matches the value from Grafana template variable', () => {
+    const testQuery = [
+      {
+        text: 'metric requests',
+        refId: 'testName',
+        language: 'tql',
+      },
+    ];
     const options = {
       range: {
         from: 0,
         to: 0,
-      }
-    }
+      },
+    };
     const expectedResult = {
-        "queries": [
-           {
-            "tql_query": "metric requests",
-            "query_name": "testName",
-            "query_type": "tql",
-           },
-         ],
-         "queryString": {
-           "chart_title": "Grafana Chart",
-           "click_millis": "_click_millis_placeholder_",
-           "end_micros": 0,
-           "queries": [
-             {
-              "tql_query": "metric requests",
-              "query_name": "testName",
-              "query_type": "tql",
-             },
-           ],
-           "source": "lightstep-metrics-datasource",
-           "start_micros": 0,
-         },
-       };
-
-  expect(ds.queryFields(testQuery,options,'lightstep-metrics-datasource')).toStrictEqual(expectedResult);
+      tql_query: [ 'metric requests' ],
+      title: 'Grafana Chart',
+      start_micros: 0,
+      end_micros: 0,
+      click_millis: '_click_millis_placeholder_',
+      source: 'lightstep-metrics-datasource'
+    };
+    expect(ds.notebookQueryFields(testQuery, options, 'lightstep-metrics-datasource')).toStrictEqual(expectedResult);
   });
 });

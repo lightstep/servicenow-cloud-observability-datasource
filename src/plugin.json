@@ -45,7 +45,7 @@
   "routes": [
     {
       "path": "test",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}",
+      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/test",
       "headers": [
         {
           "name": "Authorization",

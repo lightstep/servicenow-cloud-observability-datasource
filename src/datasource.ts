@@ -129,7 +129,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
           config: {
             links: [
               {
-                url: `https://app.lightstep.com/${this.projectName}/notebooks?${stringifiedQueryString}`,
+                url: `https://app.lightstep.com/${this.defaultProjectName()}/notebooks?${stringifiedQueryString}`,
                 targetBlank: true,
                 title: 'Create a Notebook in Lightstep',
               },
@@ -199,11 +199,19 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   }
 
   fetchProjects() {
-    return getBackendSrv().get(`${this.url}/projects`);
+    return this.projects();
+  }
+
+  hasMultipleProjects(): boolean {
+    return this.projectName.indexOf(',') !== -1;
+  }
+
+  projects(): string[] {
+    return this.projectName.split(',');
   }
 
   defaultProjectName(): string {
-    return this.projectName;
+    return this.hasMultipleProjects() ? this.projects()[0] : this.projectName;
   }
 
   testDatasource() {

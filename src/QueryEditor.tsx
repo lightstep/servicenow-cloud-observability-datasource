@@ -21,9 +21,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
   };
 
   componentDidMount() {
-    this.props.datasource.fetchProjects().then((response) => {
-      this.setState({ projects: response.data?.map((d: any) => d.id) });
-    });
+    this.setState({ projects: this.props.datasource.fetchProjects() });
   }
 
   componentWillUnmount() {

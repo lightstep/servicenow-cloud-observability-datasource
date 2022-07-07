@@ -172,10 +172,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       'input-language': query.language,
       'output-period': intervalToSeconds(options.interval),
     };
-    const url = query.projectName
-      ? `${this.url}/projects/${query.projectName}/telemetry/query_timeseries`
-      : `${this.url}/query`;
-    return getBackendSrv().post(url, {
+    return getBackendSrv().post(this.projectUrl(query.projectName, '/telemetry/query_timeseries'), {
       data: {
         attributes,
         anonymized_user: hashedEmail,
@@ -210,6 +207,14 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     return this.projectName.split(',');
   }
 
+  projectUrl(projectName: string, suffix: string): string {
+    return `${this.url}/projects/${this.resolveProjectName(projectName)}${suffix}`;
+  }
+
+  resolveProjectName(projectName: string): string {
+    return projectName ? projectName : this.defaultProjectName();
+  }
+
   defaultProjectName(): string {
     return this.hasMultipleProjects() ? this.projects()[0] : this.projectName;
   }
@@ -219,7 +224,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     if (this.orgName === '') {
       return Promise.reject({ status: 'error', message: 'Organization name is required' });
     }
-    if (this.projectName === '') {
+    if (this.defaultProjectName() === '') {
       return Promise.reject({ status: 'error', message: 'Project name is required' });
     }
 

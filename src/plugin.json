@@ -45,7 +45,7 @@
   "routes": [
     {
       "path": "test",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/test",
+      "url": "https://{{ or .JsonData.apiHost "api.lightstep.com"}}/public/v0.2/{{ .JsonData.orgName}}/test",
       "headers": [
         {
           "name": "Authorization",
@@ -59,7 +59,7 @@
     },
     {
       "path": "query",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/query_timeseries",
+      "url": "https://{{ or .JsonData.apiHost "api.lightstep.com"}}/public/v0.2/{{ .JsonData.orgName}}/projects/{{ .JsonData.projectName}}/telemetry/query_timeseries",
       "headers": [
         {
           "name": "Authorization",
@@ -73,7 +73,7 @@
     },
     {
       "path": "projects",
-      "url": "https://{{ .JsonData.apiHost }}/public/v0.2/{{ .JsonData.orgName}}/projects",
+      "url": "https://{{ or .JsonData.apiHost "api.lightstep.com"}}/public/v0.2/{{ .JsonData.orgName}}/projects",
       "headers": [
         {
           "name": "Authorization",

@@ -50,19 +50,17 @@ grafana-cli plugins install lightstep-metrics-datasource
    https://github.com/lightstep/lightstep-metrics-datasource/releases
    ```
 
-### Develop with Docker
+### Developing and testing with Docker
 
-It's possible to use the `docker-compose.yml` file in this repo to quickly install this plugin in a new instance of Grafana for development or testing.
+The `Makefile` in this repository contains a `make dev` target that builds this plug-in and uses `docker-compose` to run a new instance of Grafana for development and testing.
 
-First, create a named volume so settings and dashboards will persist across container launches:
+When run the local development instance of Grafana should be available at [localhost:3000](http://localhost:3000/).
 
-```
-  $ docker volume create grafana-data-lmd
-  # build the plugin
-  $ yarn install && yarn build
-```
+1. As with all Grafana Docker images, the default login/password is `admin`/`admin`.
+2. Go to Settings > "Lightstep Provisioned Datasource" and set the Project Name, API host, and API key (based on your Lightstep account). "Save & test" the configuration.
+3. Create a new Dashboard with a new Panel, select "Lightstep Provisioned Datasource" as the Data source and enter a query.
 
-Next, run docker compose: `docker compose up` — the plugin now will be able to be installed on the Grafana instance that runs on `localhost:3000`.
+Note: the Makefile creates a local docker volume `grafana-data-lmd` to persist settings across launches so configuration is necessarily only on the first run.
 
 ## Enable the Lightstep Plugin in Grafana
 

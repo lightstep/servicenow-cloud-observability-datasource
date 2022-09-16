@@ -1,14 +1,12 @@
-# Lightstep Metrics Plugin
+# Lightstep Telemetry Data Source
 
-The Lightstep Metrics Plugin allows you to view metrics from Lightstep directly in Grafana. With minimal effort, you can use the plugin to continue viewing your existing visualizations in Grafana, using Lightstep as the data source. Then when you notice a deviation, you can click in a chart in Grafana and navigate into Lightstep to use [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation) and uncover the root cause.
+The Lightstep Telemetry Data Source allows you to view data from Lightstep directly in Grafana. You can use the plugin to visualize telemetry queries using Lightstep as the source of your telemetry data. And with Lightstep as your data source, you're able to directly drilldown into Lightstep Observability to root cause the issue of unexpected changes using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation).
 
+
+(🚧 UPDATE IMAGE)
 ![Start Change Intelligence from Grafana](https://github.com/lightstep/lightstep-metrics-datasource/raw/main/images/docs/graf_metciStart.png)
 
-Change Intelligence determines the service that emitted a metric, searches for performance changes on Key Operations from that service at the same time as the deviation, and then uses trace data to determine what caused the change.
-
-![Change Intelligence in Lightstep](https://github.com/lightstep/lightstep-metrics-datasource/raw/main/images/docs/metci_changeIntel.png)
-
-**NOTE:** _The Lightstep Metrics Plugin is on a per-project basis. If you want this integration for multiple Lightstep projects, follow these instructions for each of your projects._
+**NOTE:** _The Lightstep Telemetry Data Source operates on a per-project basis. To enable the plugin for multiple Lightstep projects, follow these instructions for each project._
 
 ## Prerequisites
 
@@ -18,11 +16,9 @@ You'll need the following to enable and use the plugin:
 
   **NOTE:** _The plugin only supports graph and time series charts._
 
-- [Metric data](https://docs.lightstep.com/docs/send-metrics-to-lightstep) reporting to Lightstep.
+- [Telemetry data](https://docs.lightstep.com/docs/send-metrics-to-lightstep) reporting to Lightstep. (🚧 UPDATE LINK)
 
-  Currently using Prometheus? You can use the [Prometheus sidecar](https://docs.lightstep.com/docs/ingest-metrics-prometheus) to send metrics to Lightstep. Lightstep also accepts metrics from other [backends](https://docs.lightstep.com/docs/send-metrics-to-lightstep).
-
-- Your Organization and Project name. Both can be found on on the [Project Settings page](https://docs.lightstep.com/docs/create-projects-for-your-environments) of Lightstep.
+- Your Lightstep "Organization" and "Project" name. Both can be found on on the [Project Settings page](https://docs.lightstep.com/docs/create-projects-for-your-environments) of Lightstep.
 
   ![Project settings](https://github.com/lightstep/lightstep-metrics-datasource/raw/main/images/docs/proj_org.png)
 

@@ -2,7 +2,6 @@
 
 The Lightstep Observability Data Source allows you to view data from Lightstep directly in Grafana. You can use the plugin to visualize telemetry queries using Lightstep as the source of your telemetry data. And with Lightstep as your data source, you're able to directly drilldown into Lightstep Observability to root cause the issue of unexpected changes using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation).
 
-(🚧 UPDATE IMAGE)
 ![Start Change Intelligence from Grafana](./images/docs/graf_metciStart.png)
 
 ## Prerequisites

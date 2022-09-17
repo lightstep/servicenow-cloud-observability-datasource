@@ -90,9 +90,9 @@ You're taken into Change Intelligence in Lightstep, where you can [start your in
 
 View the query you made in Grafana by clicking the **View query** button.
 
-![View Grafana query](./images/docs/graf_metciViewQuery.png) (🚧 UPDATE IMAGE)
+![View Grafana query](./images/docs/graf_metciViewQuery.png)
 
-### Developing and testing the plugin with Docker
+## Developing and testing the plugin with Docker
 
 The `Makefile` in this repository contains a `make dev` target that builds this plugin and uses `docker-compose` to run a new instance of Grafana for development and testing.
 

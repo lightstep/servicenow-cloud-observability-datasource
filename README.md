@@ -5,8 +5,6 @@ The Lightstep Observability Data Source allows you to view data from Lightstep d
 (🚧 UPDATE IMAGE)
 ![Start Change Intelligence from Grafana](./images/docs/graf_metciStart.png)
 
-**NOTE:** _The Lightstep Observability Data Source operates on a per-project basis. To enable the plugin for multiple Lightstep projects, follow these instructions for each project._
-
 ## Prerequisites
 
 You'll need the following to enable and use the plugin:
@@ -56,7 +54,7 @@ After you install the plugin, follow these steps. Steps may vary slightly depend
 
 3. Start typing `Lightstep` in the search field to find the Lightstep Observability data source and click **Select**. If you do not see the Lightstep plugin listed, please ensure it has been correctly installed or reach out to the Lightstep team for further assistance.
 
-4. Enter your Lightstep organization and project name, paste in your Lightstep [API key](https://docs.lightstep.com/docs/create-and-manage-api-keys), and click **Save & Test**.
+4. Enter your Lightstep organization and project name. If you want to use the data source with multiple projects, enter the name of each project separated by a comma into the project name field. Then paste in your Lightstep [API key](https://docs.lightstep.com/docs/create-and-manage-api-keys) and click **Save & Test**.
 
    Grafana confirms that it's connected to Lightstep.
 

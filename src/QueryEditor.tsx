@@ -97,16 +97,14 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
             />
           )}
 
-          {this.props.query.language === 'tql' && (
-            <QueryField
-              query={query.text}
-              portalOrigin="lightstep"
-              placeholder="Enter a TQL query (Run with Shift + Enter)"
-              onBlur={this.props.onRunQuery}
-              onChange={this.onQueryChange}
-              onRunQuery={this.props.onRunQuery}
-            />
-          )}
+          <QueryField
+            query={query.text}
+            portalOrigin="lightstep"
+            placeholder="Enter a query (Run with Shift + Enter)"
+            onBlur={this.props.onRunQuery}
+            onChange={this.onQueryChange}
+            onRunQuery={this.props.onRunQuery}
+          />
         </div>
         <div className="gf-form">
           <Collapse
@@ -119,7 +117,13 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
               label="Legend"
               description="Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname."
             >
-              <Input css name="legendFormat" onChange={this.onChangeFormat} value={this.props.query.format} />
+              <Input
+                css
+                name="legendFormat"
+                spellCheck="false"
+                onChange={this.onChangeFormat}
+                value={this.props.query.format}
+              />
             </Field>
           </Collapse>
         </div>

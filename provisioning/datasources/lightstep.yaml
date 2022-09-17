@@ -7,7 +7,7 @@ datasources:
   # <string, required> name of the datasource. Required
   - name: Lightstep Provisioned Datasource
     # <string, required> datasource type. Required
-    type: lightstep-metrics-datasource
+    type: lightstep-observability-datasource
     # <string, required> access mode. proxy or direct (Server or Browser in the UI). Required
     access: proxy
     # <int> org id. will default to orgId 1 if not specified

@@ -1,12 +1,11 @@
-# Lightstep Telemetry Data Source
+# Lightstep Observability Data Source
 
-The Lightstep Telemetry Data Source allows you to view data from Lightstep directly in Grafana. You can use the plugin to visualize telemetry queries using Lightstep as the source of your telemetry data. And with Lightstep as your data source, you're able to directly drilldown into Lightstep Observability to root cause the issue of unexpected changes using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation).
-
+The Lightstep Observability Data Source allows you to view data from Lightstep directly in Grafana. You can use the plugin to visualize telemetry queries using Lightstep as the source of your telemetry data. And with Lightstep as your data source, you're able to directly drilldown into Lightstep Observability to root cause the issue of unexpected changes using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation).
 
 (🚧 UPDATE IMAGE)
 ![Start Change Intelligence from Grafana](./images/docs/graf_metciStart.png)
 
-**NOTE:** _The Lightstep Telemetry Data Source operates on a per-project basis. To enable the plugin for multiple Lightstep projects, follow these instructions for each project._
+**NOTE:** _The Lightstep Observability Data Source operates on a per-project basis. To enable the plugin for multiple Lightstep projects, follow these instructions for each project._
 
 ## Prerequisites
 
@@ -35,7 +34,7 @@ You can install the plugin using the Grafana CLI, or if your Grafana server does
 Install the plugin from the Grafana CLI using [Grafana's plugin installation instructions](https://grafana.com/docs/grafana/latest/plugins/installation/).
 
 ```sh
-grafana-cli plugins install lightstep-telemetry-datasource
+grafana-cli plugins install lightstep-observability-datasource
 ```
 
 ### Install Manually
@@ -43,7 +42,7 @@ grafana-cli plugins install lightstep-telemetry-datasource
 1. Download the zip file from GitHub releases page.
 
    ```sh
-   https://github.com/lightstep/lightstep-telemetry-datasource/releases
+   https://github.com/lightstep/lightstep-observability-datasource/releases
    ```
 
 ### Developing and testing with Docker
@@ -58,7 +57,7 @@ When run the local development instance of Grafana should be available at [local
 
 Note: the Makefile creates a local docker volume `grafana-data-lmd` to persist settings across launches so configuration is necessarily only on the first run.
 
-## Enable the Lightstep Telemetry Data Source in Grafana
+## Enable the Lightstep Observability Data Source in Grafana
 
 After you install the plugin, follow these steps. Steps may vary slightly depending on your version of Grafana.
 
@@ -67,7 +66,7 @@ After you install the plugin, follow these steps. Steps may vary slightly depend
 
    ![Data Source](./images/docs/graf_metciData.png)
 
-3. Start typing `Lightstep` in the search field to find the Lightstep Telemetry data source and click **Select**.
+3. Start typing `Lightstep` in the search field to find the Lightstep Observability data source and click **Select**.
 
    ![Find Lightstep](./images/docs/graf_metciLS.png)
 
@@ -82,15 +81,14 @@ After you install the plugin, follow these steps. Steps may vary slightly depend
 
 You can now create dashboards and charts in Grafana using data provided by your Lightstep project.
 
-## Create Grafana Charts from Lightstep Telemetry
+## Create Grafana Charts from Lightstep Observability
 
 With the Lightstep plugin installed, you can query your Lightstep data directly from Grafana.
 
 1. In the Edit Panel view, make sure you've selected the Lightstep data source.
 
    ![Lightstep as data source](./images/docs/graf_metciSource.png)
-     (🚧 UPDATE IMAGE)<br/>
-
+   (🚧 UPDATE IMAGE)<br/>
 
 2. Use the **Metrics** dropdown to select the metric for your query.
 
@@ -121,6 +119,4 @@ You're taken into Change Intelligence in Lightstep, where you can [start your in
 
 View the query you made in Grafana by clicking the **View query** button.
 
-![View Grafana query](./images/docs/graf_metciViewQuery.png)   (🚧 UPDATE IMAGE)
-
-
+![View Grafana query](./images/docs/graf_metciViewQuery.png) (🚧 UPDATE IMAGE)

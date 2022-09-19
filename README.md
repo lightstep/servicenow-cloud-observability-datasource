@@ -32,7 +32,31 @@ You'll need the following to enable and use the plugin:
    https://github.com/lightstep/lightstep-observability-datasource/releases
    ```
 
-Follow the steps for installation in the Grafana documentation: https://grafana.com/docs/grafana/latest/administration/plugin-management/#install-plugin-on-local-grafana
+2. Unzip the release into your plugins directory
+
+   ```bash
+   unzip -d [YOUR_GRAFANA_PLUGINS_DIR]/lightstep-observability-datasource lightstep-observability-datasource-X.Y.Z.zip
+   ```
+
+   The value of`YOUR_GRAFANA_PLUGINS_DIR` will depend on your system and how Grafana was installed. For example, it may be at `/var/lib/grafana/plugins` on Linux.
+
+3. Ensure your Grafana installation is configured to allow unsigned plugins.
+
+   This generally requires ensuring the `allow_loading_unsigned_plugins` value in the `plugins` section of `grafana.ini` is updated to include `lightstep-observability-plugin` in the list of allowed plugins.
+
+   ```ini
+   [plugins]
+   ;enable_alpha = false
+   ;app_tls_skip_verify_insecure = false
+   # Enter a comma-separated list of plugin identifiers to identify plugins that are allowed to be loaded even if they lack a valid signature.
+   allow_loading_unsigned_plugins = lightstep-observability-datasource
+   ```
+
+4. In the Grafana plugin installation, install the "**Lightstep Observability**" (unsigned) datasource. If you see only the "Lightstep Metrics" plugin, your installation likely has not succeeded.
+
+   ![Plugin installation](./images/docs/plugin_installation.png)
+
+For more information, follow the steps in the Grafana documentation for local installations: https://grafana.com/docs/grafana/latest/administration/plugin-management/#install-plugin-on-local-grafana
 
 ### Install using the Grafana CLI
 

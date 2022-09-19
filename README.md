@@ -28,9 +28,9 @@ You'll need the following to enable and use the plugin:
 
 1. Download the zip file for the version you want from GitHub releases page:
 
-   ```
-   https://github.com/lightstep/lightstep-observability-datasource/releases
-   ```
+
+   [https://github.com/lightstep/lightstep-observability-datasource/releases](https://github.com/lightstep/lightstep-observability-datasource/releases)
+
 
 2. Unzip the release into your plugins directory
 

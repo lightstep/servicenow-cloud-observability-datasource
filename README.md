@@ -85,9 +85,9 @@ You can now create dashboards and charts in Grafana using data provided by your 
 
 With the Lightstep plugin installed, you can query your Lightstep data directly from Grafana.
 
-1. When in the Edit Panel view, under the "Query" tab, select the Lightstep Observability data source from the "Data source" drop down.
+1. From the **Query** tab of the Edit Panel, select **Lightstep Observability data source** from the **Data source** drop down.
 
-2. Add query in the text input, using the [Lightstep's Unified Query Language (UQL)](). (🚧 LINK NEEDED 🚧)
+2. Add a query to the text input, using the [Lightstep's Unified Query Language (UQL)](). (🚧 LINK NEEDED 🚧)
 
    Click out of the field (or press `shift` + `Enter`) to run your query.
 
@@ -103,7 +103,7 @@ To investigate, click into the deviation and select **View what changed in Light
 
 ![Start Change Intelligence](./images/docs/graf_metciCI.png)
 
-You're taken into Change Intelligence in Lightstep, where you can [start your investigation](https://docs.lightstep.com/docs/investigate-metric-deviation).
+You're taken into Change Intelligence in Lightstep where you can [start your investigation](https://docs.lightstep.com/docs/investigate-metric-deviation).
 
 ![Change Intelligence](./images/docs/graf_metciPW.png)
 

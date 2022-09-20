@@ -1,6 +1,6 @@
 # Lightstep Observability Data Source
 
-The Lightstep Observability Data Source allows you to view and visualize telemetry data from [Lightstep Observability](https://lightstep.com) directly in Grafana. And with Lightstep as your data source, you're able to directly drilldown into Lightstep Observability to root cause the issue of unexpected changes using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-metric-deviation).
+The Lightstep Observability Data Source allows you to view and visualize telemetry data from [Lightstep Observability](https://lightstep.com) directly in Grafana. Using Lightstep as your data source, you can jump directly from a chart in Grafana into Lightstep Observability to find the root cause of an issue, using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-deviation).
 
 ![Start Change Intelligence from Grafana](./images/docs/graf_metciStart.png)
 
@@ -26,19 +26,15 @@ You'll need the following to enable and use the plugin:
 
 ### Recommended: Install directly from GitHub
 
-1. Download the zip file for the version you want from GitHub releases page:
+1. Download the [zip file](https://github.com/lightstep/lightstep-observability-datasource/releases) for the plugin.
 
+2. Unzip the release into your Grafana `plugins` directory.
 
-   [https://github.com/lightstep/lightstep-observability-datasource/releases](https://github.com/lightstep/lightstep-observability-datasource/releases)
-
-
-2. Unzip the release into your plugins directory
+    The value of`YOUR_GRAFANA_PLUGINS_DIR` will depend on your system and how Grafana was installed. For example, it may be at `/var/lib/grafana/plugins` on Linux.
 
    ```bash
    unzip -d [YOUR_GRAFANA_PLUGINS_DIR]/lightstep-observability-datasource lightstep-observability-datasource-X.Y.Z.zip
    ```
-
-   The value of`YOUR_GRAFANA_PLUGINS_DIR` will depend on your system and how Grafana was installed. For example, it may be at `/var/lib/grafana/plugins` on Linux.
 
 3. Ensure your Grafana installation is configured to allow unsigned plugins.
 
@@ -52,11 +48,11 @@ You'll need the following to enable and use the plugin:
    allow_loading_unsigned_plugins = lightstep-observability-datasource
    ```
 
-4. In the Grafana plugin installation, install the "**Lightstep Observability**" (unsigned) datasource. If you see only the "Lightstep Metrics" plugin, your installation likely has not succeeded.
+4. In the Grafana plugin installation, install the **Lightstep Observability** (unsigned) datasource. If you see only the **Lightstep Metrics** plugin, your installation likely has not succeeded.
 
    ![Plugin installation](./images/docs/plugin_installation.png)
 
-For more information, follow the steps in the Grafana documentation for local installations: https://grafana.com/docs/grafana/latest/administration/plugin-management/#install-plugin-on-local-grafana
+For more information, follow the steps in the [Grafana documentation](https://grafana.com/docs/grafana/latest/administration/plugin-management/#install-plugin-on-local-grafana) for local installations.
 
 ### Install using the Grafana CLI
 
@@ -75,7 +71,7 @@ After you install the plugin, follow these steps. Steps may vary slightly depend
 
    ![Data Source](./images/docs/graf_metciData.png)
 
-3. Start typing `Lightstep` in the search field to find the Lightstep Observability data source and click **Select**. If you do not see the Lightstep plugin listed, please ensure it has been correctly installed or reach out to the Lightstep team for further assistance.
+3. Start typing `Lightstep` in the search field to find the **Lightstep Observability data source** and click **Select**. If you do not see the Lightstep plugin listed, please ensure it has been correctly installed or reach out to the Lightstep team for further assistance.
 
 4. Enter your Lightstep organization and project name. If you want to use the data source with multiple projects, enter the name of each project separated by a comma into the project name field. Then paste in your Lightstep [API key](https://docs.lightstep.com/docs/create-and-manage-api-keys) and click **Save & Test**.
 
@@ -85,7 +81,7 @@ After you install the plugin, follow these steps. Steps may vary slightly depend
 
 You can now create dashboards and charts in Grafana using data provided by your Lightstep project.
 
-## Create Grafana Charts from Lightstep Observability
+## Create Grafana charts from Lightstep Observability
 
 With the Lightstep plugin installed, you can query your Lightstep data directly from Grafana.
 
@@ -99,7 +95,7 @@ With the Lightstep plugin installed, you can query your Lightstep data directly 
 
 3. Choose the visualization for the chart (Lightstep supports either **Graph** or **Time Series**). Click **Apply** to create the graph.
 
-## Investigate a Deviation from a Grafana Chart
+## Investigate a Deviation from a Grafana chart
 
 Now that you have a chart in Grafana, when you notice a unexpected change in your data, you can investigate in Lightstep to rapidly find the root cause.
 
@@ -119,10 +115,10 @@ View the query you made in Grafana by clicking the **View query** button.
 
 The `Makefile` in this repository contains a `make dev` target that builds this plugin and uses `docker-compose` to run a new instance of Grafana for development and testing.
 
-When run the local development instance of Grafana should be available at [localhost:3000](http://localhost:3000/).
+When running, the local development instance of Grafana should be available at [localhost:3000](http://localhost:3000/).
 
 1. As with most Grafana Docker images, the default login/password is `admin`/`admin`.
-2. Go to Settings > "Lightstep Provisioned Datasource" and set the Project Name, API host, and API key (based on your Lightstep account). "Save & test" the configuration.
-3. Create a new Dashboard with a new Panel, select "Lightstep Provisioned Datasource" as the Data source and enter a query.
+2. Go to **Settings** > **Lightstep Provisioned Datasource** and set the Project Name, API host, and API key (based on your Lightstep account). **Save & test** the configuration.
+3. Create a new dashboard with a new Panel, select **Lightstep Provisioned Datasource** as the data source and enter a query.
 
-Note: the Makefile creates a local docker volume `grafana-data-lmd` to persist settings across launches so configuration is necessarily only on the first run.
+Note: the Makefile creates a local docker volume `grafana-data-lmd` to persist settings across launches, so configuration is necessarily only on the first run.

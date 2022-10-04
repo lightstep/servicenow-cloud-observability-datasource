@@ -87,7 +87,7 @@ With the Lightstep plugin installed, you can query your Lightstep data directly 
 
 1. From the **Query** tab of the Edit Panel, select **Lightstep Observability data source** from the **Data source** drop down.
 
-2. Add a query to the text input, using the [Lightstep's Unified Query Language (UQL)](). (🚧 LINK NEEDED 🚧)
+2. Add a query to the text input, using the [Lightstep's Unified Query Language (UQL)](https://docs.lightstep.com/docs/uql-concepts).
 
    Click out of the field (or press `shift` + `Enter`) to run your query.
 
@@ -103,7 +103,7 @@ To investigate, click into the deviation and select **View what changed in Light
 
 ![Start Change Intelligence](./images/docs/graf_metciCI.png)
 
-You're taken into Change Intelligence in Lightstep where you can [start your investigation](https://docs.lightstep.com/docs/investigate-metric-deviation).
+You're taken into Change Intelligence in Lightstep where you can [start your investigation](https://docs.lightstep.com/docs/investigate-deviation).
 
 ![Change Intelligence](./images/docs/graf_metciPW.png)
 

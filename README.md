@@ -2,7 +2,7 @@
 
 The Lightstep Observability Data Source allows you to view and visualize telemetry data from [Lightstep Observability](https://lightstep.com) directly in Grafana. Using Lightstep as your data source, you can jump directly from a chart in Grafana into Lightstep Observability to find the root cause of an issue, using advanced functionality like [Change Intelligence](https://docs.lightstep.com/docs/investigate-deviation).
 
-![Start Change Intelligence from Grafana](./images/docs/graf_metciStart.png)
+![Open a Notebook from Grafana](./images/docs/graf_metciStart.png)
 
 ## Prerequisites
 
@@ -99,17 +99,17 @@ With the Lightstep plugin installed, you can query your Lightstep data directly 
 
 Now that you have a chart in Grafana, when you notice a unexpected change in your data, you can investigate in Lightstep to rapidly find the root cause.
 
-To investigate, click into the deviation and select **View what changed in Lightstep**.
+To investigate, click into the deviation and select **Create a Notebook in Lightstep**.
 
-![Start Change Intelligence](./images/docs/graf_metciCI.png)
+![Open a Notebook from Grafana](./images/docs/graf_metciStart.png)
 
-You're taken into Change Intelligence in Lightstep where you can [start your investigation](https://docs.lightstep.com/docs/investigate-deviation).
+You're taken into a Notebook within Lightstep with your query pre-populated, where you can [start your investigation](https://docs.lightstep.com/docs/investigate-deviation).
 
-![Change Intelligence](./images/docs/graf_metciPW.png)
+![Notebook with UQL](./images/docs/graf_notebook.png)
 
-View the query you made in Grafana by clicking the **View query** button.
+Utilize Change Intelligence or trace views to further your investigation.
 
-![View Grafana query](./images/docs/graf_metciViewQuery.png)
+![Change Intelligence](./images/docs/graf_metci_CI.png)
 
 ## Developing and testing the plugin with Docker
 

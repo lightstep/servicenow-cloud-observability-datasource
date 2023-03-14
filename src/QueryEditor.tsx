@@ -60,6 +60,13 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     onRunQuery();
   };
 
+  onChangeSeriesName = (evt: React.FormEvent<HTMLInputElement>) => {
+    const { onChange, onRunQuery, query } = this.props;
+
+    onChange({ ...query, seriesName: evt.currentTarget.value || '' });
+    onRunQuery();
+  };
+
   onProjectSelectionChange = ({ value }: SelectableValue) => {
     const { onChange, onRunQuery, query } = this.props;
 
@@ -123,6 +130,15 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
                 spellCheck="false"
                 onChange={this.onChangeFormat}
                 value={this.props.query.format}
+              />
+            </Field>
+            <Field label="Series name" description="Series name to use as prefix to series group by values">
+              <Input
+                css
+                name="seriesName"
+                spellCheck="false"
+                onChange={this.onChangeSeriesName}
+                value={this.props.query.seriesName}
               />
             </Field>
           </Collapse>

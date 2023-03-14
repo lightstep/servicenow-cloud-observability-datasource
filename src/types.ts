@@ -6,6 +6,7 @@ export interface LightstepQuery extends DataQuery {
   text: string;
   format: string;
   language: LightstepQueryLanguage;
+  seriesName: string;
 }
 
 export function defaultQuery(projectName: string): Partial<LightstepQuery> {

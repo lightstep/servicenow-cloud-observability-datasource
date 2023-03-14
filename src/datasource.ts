@@ -65,6 +65,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     // Make requests for non-empty, non-hidden queries
     const visibleTargets = options.targets.filter((query) => query.text && !query.hide);
     const legendFormats = options.targets.map((q) => q.format);
+    const seriesNames = options.targets.map((q) => q.seriesName);
     const queryRequests = visibleTargets.map((query) => this.doRequest(query, options));
     let queries: QueryResponse[];
 
@@ -80,14 +81,15 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       }
     }
 
-    return { data: this.buildQuery(queries, visibleTargets, legendFormats, options) };
+    return { data: this.buildQuery(queries, visibleTargets, legendFormats, options, seriesNames) };
   }
 
   buildQuery(
     queries: QueryResponse[],
     visibleTargets: LightstepQuery[],
     legendFormats: string[],
-    options: DataQueryRequest<LightstepQuery>
+    options: DataQueryRequest<LightstepQuery>,
+    seriesNames: string[]
   ) {
     // Declare the variables that we'll use in our nested loops.
     const frames: DataFrame[] = [];
@@ -122,6 +124,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         // Get the legend title override, if exists
         const legendFormat = legendFormats[i];
 
+        // Get the series names
+        const seriesName = seriesNames[i];
+
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
         // will be set as we loop through the series' `points` below.
@@ -135,7 +140,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               },
             ],
           },
-          name: generateFieldName(series['group-labels'], visibleTargets[i].text, legendFormat, options),
+          name: generateFieldName(series['group-labels'], visibleTargets[i].text, legendFormat, options, seriesName),
           type: FieldType.number,
           values: new Array(timestamps.length).fill(null),
         };
@@ -297,10 +302,11 @@ export function generateFieldName(
   groupLabels: string[],
   queryText: string,
   legendFormat: string,
-  options: DataQueryRequest<LightstepQuery>
+  options: DataQueryRequest<LightstepQuery>,
+  seriesName: string
 ) {
   if (legendFormat) {
-    return getTemplateSrv().replace(legendFormat, options?.scopedVars);
+    return (seriesName ? seriesName + ' ' : '') + getTemplateSrv().replace(legendFormat, options?.scopedVars);
   }
 
   if (!groupLabels || groupLabels.length === 0) {
@@ -313,5 +319,5 @@ export function generateFieldName(
     .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
     .join(', ');
 
-  return `{${formattedLabels}}`;
+  return (seriesName ? seriesName + ' ' : '') + `{${formattedLabels}}`;
 }

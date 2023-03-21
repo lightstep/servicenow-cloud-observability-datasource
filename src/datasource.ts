@@ -114,13 +114,16 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       fields = [{ name: 'Time', type: FieldType.time, values: timestamps }];
 
       query.data.attributes.series.forEach((series: Series) => {
+        const target = options.targets[i];
+
         // Build out URL for Lightstep Chart Relay page
         const queryString = this.notebookQueryFields(visibleTargets, options, this.pluginID);
         // Use Grafana's variable interpolation to get click time
         const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
-
-        // Get the legend title override, if exists
-        const legendFormat = legendFormats[i];
+        // Create a Grafana formatted set of key/value labels
+        const labels = series['group-labels']
+          ? Object.fromEntries(series['group-labels'].map((label) => label.split('=')))
+          : {};
 
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
@@ -135,7 +138,8 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               },
             ],
           },
-          name: generateFieldName(series['group-labels'], visibleTargets[i].text, legendFormat, options),
+          labels,
+          name: generateFieldName(options, target),
           type: FieldType.number,
           values: new Array(timestamps.length).fill(null),
         };
@@ -291,27 +295,14 @@ async function hashEmail(email: string) {
 }
 
 /**
- * Format labels for charts
- * */
-export function generateFieldName(
-  groupLabels: string[],
-  queryText: string,
-  legendFormat: string,
-  options: DataQueryRequest<LightstepQuery>
-) {
-  if (legendFormat) {
-    return getTemplateSrv().replace(legendFormat, options?.scopedVars);
+ * Format field names for the legend
+ */
+export function generateFieldName(options: DataQueryRequest<LightstepQuery>, target: LightstepQuery) {
+  if (target.format) {
+    return getTemplateSrv().replace(target.format, options?.scopedVars);
   }
 
-  if (!groupLabels || groupLabels.length === 0) {
-    return queryText;
-  }
-
-  const formattedLabels = groupLabels
-    .sort((a, b) => a.localeCompare(b))
-    // Surround label value in double quotes (e.g. 'key=value' => 'key="value"')
-    .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
-    .join(', ');
-
-  return `{${formattedLabels}}`;
+  // If we don't return a specific name Grafana defaults to a numbered field value, the refId
+  // is the editable query name which we default to A, B, C, etc.
+  return target.refId;
 }

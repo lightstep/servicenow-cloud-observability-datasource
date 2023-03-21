@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
-import { BracesPlugin, QueryField, Select, Field, Input, Collapse } from '@grafana/ui';
+import { BracesPlugin, QueryField, Select, InlineField, Input } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './datasource';
 import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
@@ -85,18 +85,18 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     });
     return (
       <div>
-        <div className="gf-form">
-          {this.state.projects.length > 1 && (
-            <Select
-              options={projectNameOptions}
-              value={this.props.query.projectName}
-              menuPlacement="bottom"
-              onChange={this.onProjectSelectionChange}
-              isSearchable={false}
-              width={20}
-            />
-          )}
+        {this.state.projects.length > 1 && (
+          <Select
+            options={projectNameOptions}
+            value={this.props.query.projectName}
+            menuPlacement="bottom"
+            onChange={this.onProjectSelectionChange}
+            isSearchable={false}
+            width={20}
+          />
+        )}
 
+        <InlineField grow label="Query" labelWidth={15}>
           <QueryField
             query={query.text}
             portalOrigin="lightstep"
@@ -105,28 +105,21 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
           />
-        </div>
-        <div className="gf-form">
-          <Collapse
-            collapsible
-            label="Options"
-            isOpen={this.state.isOptionsOpen}
-            onToggle={() => this.setState({ isOptionsOpen: !this.state.isOptionsOpen })}
-          >
-            <Field
-              label="Legend"
-              description="Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname."
-            >
-              <Input
-                css
-                name="legendFormat"
-                spellCheck="false"
-                onChange={this.onChangeFormat}
-                value={this.props.query.format}
-              />
-            </Field>
-          </Collapse>
-        </div>
+        </InlineField>
+        <InlineField
+          grow
+          label="Series name"
+          labelWidth={15}
+          tooltip="Series name displayed in the legend. Interpolation of variables supported with 'Variable syntax', eg $varname."
+        >
+          <Input
+            css
+            name="legendFormat"
+            spellCheck="false"
+            onChange={this.onChangeFormat}
+            value={this.props.query.format}
+          />
+        </InlineField>
       </div>
     );
   }

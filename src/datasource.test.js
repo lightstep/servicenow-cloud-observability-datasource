@@ -1,5 +1,5 @@
-import { generateFieldName, generateSortedTimestamps, generateTimestampMap, DataSource } from './datasource.ts';
-import { DataSourceWithBackend, setTemplateSrv } from '@grafana/runtime';
+import { createFieldName, generateSortedTimestamps, generateTimestampMap, DataSource } from './datasource.ts';
+import { setTemplateSrv } from '@grafana/runtime';
 
 describe('generateSortedTimestamps', () => {
   test('should compile and sort all timestamps across all series', () => {
@@ -45,35 +45,71 @@ describe('generateTimestampMap', () => {
   });
 });
 
-describe('generateFieldName', () => {
-  test('should return field name string sorted by label key', () => {
-    // Single label
-    let groupLabels = ['customer=Lightstep'];
-    let expectedFieldName = '{customer="Lightstep"}';
+describe('createFieldName', () => {
+  test.each([
+    // NO QUERY NAME DEFINED
+    {
+      name: 'returns query text when there are undefined group labels without query name',
+      format: undefined,
+      queryText: 'metric requests | delta',
+      groupLabels: undefined,
+      options: {},
+      expected: 'metric requests | delta',
+    },
+    {
+      name: 'returns query text when there are empty group labels without query name',
+      format: undefined,
+      queryText: 'metric requests | delta',
+      groupLabels: [],
+      options: {},
+      expected: 'metric requests | delta',
+    },
+    {
+      name: 'returns formatted single label without query name',
+      format: undefined,
+      queryText: 'metric requests | delta',
+      groupLabels: ['customer=Lightstep'],
+      options: {},
+      expected: '{customer="Lightstep"}',
+    },
+    {
+      name: 'returns query text when there are empty group labels without query name',
+      format: undefined,
+      queryText: 'metric requests | delta',
+      groupLabels: ['customer=Lightstep', 'service=api', 'method=/pay'],
+      options: {},
+      expected: '{customer="Lightstep", method="/pay", service="api"}',
+    },
 
-    expect(generateFieldName(groupLabels)).toBe(expectedFieldName);
+    // CUSTOM QUERY NAME DEFINED
+    {
+      name: 'returns query name when defined',
+      format: 'custom',
+      queryText: 'metric requests | delta',
+      groupLabels: undefined,
+      options: {},
+      expected: 'custom',
+    },
+    {
+      name: 'returns query name when defined with group labels',
+      format: 'custom',
+      queryText: 'metric requests | delta',
+      groupLabels: ['customer=Lightstep', 'service=api', 'method=/pay'],
+      options: {},
+      expected: 'custom {customer="Lightstep", method="/pay", service="api"}',
+    },
 
-    // Many labels
-    groupLabels = ['customer=LS', 'service=api', 'method=/pay'];
-    expectedFieldName = '{customer="LS", method="/pay", service="api"}';
-
-    expect(generateFieldName(groupLabels)).toBe(expectedFieldName);
-  });
-
-  test('should return query text', () => {
-    const queryText = 'Query text';
-    expect(generateFieldName(null, queryText)).toBe(queryText);
-
-    const emptyLabels = [];
-    expect(generateFieldName(emptyLabels, queryText)).toBe(queryText);
-  });
-
-  // Edge case
-  test('should handle "=" in label value', () => {
-    const label = 'compare=true==true';
-    const expectedName = '{compare="true==true"}';
-
-    expect(generateFieldName([label])).toBe(expectedName);
+    // EDGE CASES
+    {
+      name: 'handles "=" in group label value',
+      format: undefined,
+      queryText: 'metric requests | delta',
+      groupLabels: ['compare=true==true'],
+      options: {},
+      expected: '{compare="true==true"}',
+    },
+  ])('$name', ({ format, queryText, groupLabels, options, expected }) => {
+    expect(createFieldName(format, queryText, groupLabels, options)).toBe(expected);
   });
 });
 
@@ -112,12 +148,12 @@ describe('validateQueryFields', () => {
       },
     };
     const expectedResult = {
-      tql_query: [ 'metric requests' ],
+      tql_query: ['metric requests'],
       title: 'Grafana Chart',
       start_micros: 0,
       end_micros: 0,
       click_millis: '_click_millis_placeholder_',
-      source: 'lightstep-metrics-datasource'
+      source: 'lightstep-metrics-datasource',
     };
     expect(ds.notebookQueryFields(testQuery, options, 'lightstep-metrics-datasource')).toStrictEqual(expectedResult);
   });

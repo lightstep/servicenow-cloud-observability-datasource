@@ -64,7 +64,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   async query(options: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     // Make requests for non-empty, non-hidden queries
     const visibleTargets = options.targets.filter((query) => query.text && !query.hide);
-    const legendFormats = options.targets.map((q) => q.format);
     const queryRequests = visibleTargets.map((query) => this.doRequest(query, options));
     let queries: QueryResponse[];
 
@@ -80,15 +79,15 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       }
     }
 
-    return { data: this.buildQuery(queries, visibleTargets, legendFormats, options) };
+    return { data: this.buildQuery(queries, visibleTargets, options) };
   }
 
-  buildQuery(
-    queries: QueryResponse[],
-    visibleTargets: LightstepQuery[],
-    legendFormats: string[],
-    options: DataQueryRequest<LightstepQuery>
-  ) {
+  /**
+   * @param queries Fetched API data
+   * @param visibleTargets Populated queries that should be displayed in panel
+   * @param options The complete set of panel options, including time range, template variables, query, etc.
+   */
+  buildQuery(queries: QueryResponse[], visibleTargets: LightstepQuery[], options: DataQueryRequest<LightstepQuery>) {
     // Declare the variables that we'll use in our nested loops.
     const frames: DataFrame[] = [];
     let field: SimpleField;
@@ -119,9 +118,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         // Use Grafana's variable interpolation to get click time
         const stringifiedQueryString = stringify(queryString).replace(clickMillisPlaceholder, '${__value.time}');
 
-        // Get the legend title override, if exists
-        const legendFormat = legendFormats[i];
-
         // Each series will get its own Field
         // The field's values are initially set to `null`. The actual values
         // will be set as we loop through the series' `points` below.
@@ -135,18 +131,23 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               },
             ],
           },
-          name: generateFieldName(series['group-labels'], visibleTargets[i].text, legendFormat, options),
+          name: createFieldName(visibleTargets[i].format, visibleTargets[i].text, series['group-labels'], options),
           type: FieldType.number,
           values: new Array(timestamps.length).fill(null),
         };
 
-        series.points.forEach(([timestamp, value]) => {
-          timestampIndex = timestampToIndexMap.get(timestamp);
+        // API will currently return undefined for series.points for series without
+        // data instead of an empty array
+        if (series.points) {
+          series.points.forEach(([timestamp, value]) => {
+            timestampIndex = timestampToIndexMap.get(timestamp);
 
-          if (timestampIndex !== undefined) {
-            field.values[timestampIndex] = value;
-          }
-        });
+            if (timestampIndex !== undefined) {
+              field.values[timestampIndex] = value;
+            }
+          });
+        }
+
         fields.push(field);
       });
 
@@ -251,7 +252,11 @@ export function generateSortedTimestamps(query: QueryResponse): number[] {
   const timestampSet = new Set<number>();
 
   query.data.attributes.series.forEach((series: Series) => {
-    series.points.forEach(([timestamp]) => timestampSet.add(timestamp));
+    // API will currently return undefined for series.points for series without
+    // data instead of an empty array
+    if (series.points) {
+      series.points.forEach(([timestamp]) => timestampSet.add(timestamp));
+    }
   });
 
   return Array.from(timestampSet).sort((a, b) => a - b);
@@ -290,28 +295,30 @@ async function hashEmail(email: string) {
   }
 }
 
-/**
- * Format labels for charts
- * */
-export function generateFieldName(
-  groupLabels: string[],
+export function createFieldName(
+  format: string,
   queryText: string,
-  legendFormat: string,
+  groupLabels: string[] = [],
   options: DataQueryRequest<LightstepQuery>
 ) {
-  if (legendFormat) {
-    return getTemplateSrv().replace(legendFormat, options?.scopedVars);
+  let formattedLabels = '';
+  if (groupLabels.length > 0) {
+    formattedLabels = `{${groupLabels
+      .sort((a, b) => a.localeCompare(b))
+      // Surround label value in double quotes (e.g. 'key=value' => 'key="value"')
+      .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
+      .join(', ')}}`;
   }
 
-  if (!groupLabels || groupLabels.length === 0) {
-    return queryText;
+  if (format) {
+    return (
+      getTemplateSrv().replace(format, options?.scopedVars) + (formattedLabels.length > 0 ? ' ' + formattedLabels : '')
+    );
   }
 
-  const formattedLabels = groupLabels
-    .sort((a, b) => a.localeCompare(b))
-    // Surround label value in double quotes (e.g. 'key=value' => 'key="value"')
-    .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
-    .join(', ');
+  if (groupLabels.length > 0) {
+    return formattedLabels;
+  }
 
-  return `{${formattedLabels}}`;
+  return queryText;
 }

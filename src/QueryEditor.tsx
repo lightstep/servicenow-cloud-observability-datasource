@@ -114,12 +114,12 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
             onToggle={() => this.setState({ isOptionsOpen: !this.state.isOptionsOpen })}
           >
             <Field
-              label="Legend"
-              description="Series name override or template. Ex. {{hostname}} will be replaced with label value for hostname."
+              label="Query name"
+              description="Display name for the query, shown with each series in the chart tooltip and legend"
             >
               <Input
                 css
-                name="legendFormat"
+                name="queryName"
                 spellCheck="false"
                 onChange={this.onChangeFormat}
                 value={this.props.query.format}

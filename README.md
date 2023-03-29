@@ -30,7 +30,7 @@ You'll need the following to enable and use the plugin:
 
 2. Unzip the release into your Grafana `plugins` directory.
 
-    The value of`YOUR_GRAFANA_PLUGINS_DIR` will depend on your system and how Grafana was installed. For example, it may be at `/var/lib/grafana/plugins` on Linux.
+   The value of`YOUR_GRAFANA_PLUGINS_DIR` will depend on your system and how Grafana was installed. For example, it may be at `/var/lib/grafana/plugins` on Linux.
 
    ```bash
    unzip -d [YOUR_GRAFANA_PLUGINS_DIR]/lightstep-observability-datasource lightstep-observability-datasource-X.Y.Z.zip
@@ -118,7 +118,8 @@ The `Makefile` in this repository contains a `make dev` target that builds this 
 When running, the local development instance of Grafana should be available at [localhost:3000](http://localhost:3000/).
 
 1. As with most Grafana Docker images, the default login/password is `admin`/`admin`.
-2. Go to **Settings** > **Lightstep Provisioned Datasource** and set the Project Name, API host, and API key (based on your Lightstep account). **Save & test** the configuration.
-3. Create a new dashboard with a new Panel, select **Lightstep Provisioned Datasource** as the data source and enter a query.
+2. Setup the datasource by going to **Settings** > **Data sources** and then searching for "Lightstep"
+3. Set the Org name, Project name, API host, and API key (based on your Lightstep account). **Save & test** the configuration.
+4. Create a new dashboard with a new Panel, select **Lightstep Observability** as the data source and enter a query.
 
-Note: the Makefile creates a local docker volume `grafana-data-lmd` to persist settings across launches, so configuration is necessarily only on the first run.
+Note: The `docker-compose.yml` includes a `grafana-storage` volume to persist settings across launches, so configuration is necessary only on the first run.

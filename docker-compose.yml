@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   grafana:
     image: grafana/grafana-oss:8.2.6
@@ -6,14 +6,12 @@ services:
     ports:
       - 3000:3000
     environment:
-      - GF_ALLOW_LOADING_UNSIGNED_PLUGINS=lightstep-metrics-datasource
+      - GF_ALLOW_LOADING_UNSIGNED_PLUGINS=lightstep-observability-datasource
       - GF_LOG_LEVEL=debug
       - GF_DEFAULT_APP_MODE=development
-      - LIGHTSTEP_API_KEY=${LIGHTSTEP_API_KEY}
     volumes:
-      - grafana-data-lmd:/var/lib/grafana
+      - grafana-storage:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
-      - ./dist:/var/lib/grafana/plugins/lightstep-metrics-datasource
+      - ./dist:/var/lib/grafana/plugins/lightstep-observability-datasource
 volumes:
-  grafana-data-lmd:
-    external: true
+  grafana-storage:

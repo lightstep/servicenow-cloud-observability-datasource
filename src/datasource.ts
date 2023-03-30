@@ -173,12 +173,17 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       'input-language': query.language,
       'output-period': intervalToSeconds(options.interval),
     };
+
+    const analytics = {
+      anonymized_user: hashedEmail,
+      grafana_version: config.buildInfo.version,
+      query_source: 'grafana',
+    };
+
     return getBackendSrv().post(this.projectUrl(query.projectName, '/telemetry/query_timeseries'), {
       data: {
         attributes,
-        anonymized_user: hashedEmail,
-        grafana_version: config.buildInfo.version,
-        query_source: 'grafana',
+        analytics,
       },
     });
   }

@@ -7,9 +7,6 @@ ensure-dependencies:
 
 .PHONY: dev
 dev: ensure-dependencies
-	@echo "Creating local Docker storage volume if not present"
-	-docker volume create grafana-data-lmd
-	docker-compose down
 	@echo "Building plug-in"
 	yarn install && yarn build
 	@echo "Starting docker compose..."

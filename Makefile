@@ -17,7 +17,11 @@ RELEASE_FILE :=$(shell cat package.json | jq -r .name)-$(shell cat package.json 
 
 .PHONY: build-release
 build-release: 
-	echo npm run build
+	npm run build
+	rm -rf releases
 	mkdir -p releases
-	cd dist && zip -r "../releases/$(RELEASE_FILE)" *
+	
+	ln -s dist lightstep-observability-datasource
+	zip -r "releases/$(RELEASE_FILE)" lightstep-observability-datasource
+	rm lightstep-observability-datasource
 	echo "$(shell md5 < releases/$(RELEASE_FILE))  $(RELEASE_FILE)" > releases/$(RELEASE_FILE).md5

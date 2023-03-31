@@ -29,13 +29,16 @@ You'll need the following to enable and use the plugin:
 1. Install the plugin from the Grafana CLI using [Grafana's plugin installation instructions](https://grafana.com/docs/grafana/latest/plugins/installation/). Copy the latest release zip URL from the [releases](https://github.com/lightstep/lightstep-observability-datasource/releases) page.
 
    ```sh
-   grafana-cli --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip plugins install lightstep-observability-datasource
+grafana-cli --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip \
+            plugins install lightstep-observability-datasource
    ```
 
-   If running locally on Mac OS (arm) via HomeBrew, try:
+   If running locally on Mac OS (arm) via Homebrew, try:
 
    ```sh
-   grafana-cli --pluginsDir /opt/homebrew/var/lib/grafana/plugins --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip plugins install lightstep-observability-datasource
+grafana-cli --pluginsDir /opt/homebrew/var/lib/grafana/plugins \
+   --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip \
+   plugins install lightstep-observability-datasource
    ```
 
 2. Ensure your Grafana installation is configured to allow unsigned plugins.

@@ -24,7 +24,36 @@ You'll need the following to enable and use the plugin:
 
 ## Installation
 
-### Recommended: Install directly from GitHub
+### Recommended: Install using the Grafana CLI
+
+1. Install the plugin from the Grafana CLI using [Grafana's plugin installation instructions](https://grafana.com/docs/grafana/latest/plugins/installation/). Copy the latest release zip URL from the [releases](https://github.com/lightstep/lightstep-observability-datasource/releases) page.
+
+   ```sh
+   grafana-cli --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip \
+      plugins install lightstep-observability-datasource
+   ```
+
+   If running locally on Mac OS (arm) via Homebrew, try:
+
+   ```sh
+   grafana-cli --pluginsDir /opt/homebrew/var/lib/grafana/plugins \
+               --pluginUrl https://github.com/lightstep/lightstep-observability-datasource/releases/download/v2.0.1/lightstep-observability-datasource-2.0.1.zip \
+               plugins install lightstep-observability-datasource
+   ```
+
+2. Ensure your Grafana installation is configured to allow unsigned plugins.
+
+   This generally requires ensuring the `allow_loading_unsigned_plugins` value in the `plugins` section of `grafana.ini` is updated to include `lightstep-observability-plugin` in the list of allowed plugins.
+
+   ```ini
+   [plugins]
+   ;enable_alpha = false
+   ;app_tls_skip_verify_insecure = false
+   # Enter a comma-separated list of plugin identifiers to identify plugins that are allowed to be loaded even if they lack a valid signature.
+   allow_loading_unsigned_plugins = lightstep-observability-datasource
+   ```
+
+### Install directly from GitHub
 
 1. Download the [zip file](https://github.com/lightstep/lightstep-observability-datasource/releases) for the plugin.
 
@@ -54,13 +83,7 @@ You'll need the following to enable and use the plugin:
 
 For more information, follow the steps in the [Grafana documentation](https://grafana.com/docs/grafana/latest/administration/plugin-management/#install-plugin-on-local-grafana) for local installations.
 
-### Install using the Grafana CLI
 
-1. Install the plugin from the Grafana CLI using [Grafana's plugin installation instructions](https://grafana.com/docs/grafana/latest/plugins/installation/).
-
-   ```sh
-   grafana-cli plugins install lightstep-observability-datasource
-   ```
 
 ## Enable the Lightstep Observability Data Source in Grafana
 

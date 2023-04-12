@@ -4,7 +4,7 @@ default: dev
 .PHONY: dev
 dev: 
 	@echo "Building plug-in"
-	npm ci && npm run build
+	npm install && npm run build
 	@echo "Starting docker compose..."
 	docker-compose up &
 	npm run watch

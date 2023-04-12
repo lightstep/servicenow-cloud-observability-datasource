@@ -1,17 +1,13 @@
 .PHONY: default
 default: dev
 
-.PHONY: ensure-dependencies
-ensure-dependencies:
-	@which yarn || (echo "You must install yarn to build the plug-in" && false)
-
 .PHONY: dev
-dev: ensure-dependencies
+dev: 
 	@echo "Building plug-in"
-	yarn install && yarn build
+	npm install && npm run build
 	@echo "Starting docker compose..."
 	docker-compose up &
-	yarn watch
+	npm run watch
 
 RELEASE_FILE :=$(shell cat package.json | jq -r .name)-$(shell cat package.json | jq -r .version).zip
 

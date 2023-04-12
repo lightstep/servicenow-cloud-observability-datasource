@@ -118,7 +118,6 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
               description="Display name for the query, shown with each series in the chart tooltip and legend"
             >
               <Input
-                css
                 name="queryName"
                 spellCheck="false"
                 onChange={this.onChangeFormat}

@@ -7,12 +7,14 @@ import {
   FieldConfig,
   FieldType,
   MutableDataFrame,
+  rangeUtil,
 } from '@grafana/data';
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { stringify } from 'qs';
 
 import { LightstepDataSourceOptions, LightstepQuery } from './types';
-import { intervalToSeconds } from './rangeUtilPolyfill';
+
+rangeUtil.intervalToSeconds;
 
 // Internal types for this class
 type QueryResponse = {
@@ -171,7 +173,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       'youngest-time': options.range.to,
       query: queryWithVars,
       'input-language': query.language,
-      'output-period': intervalToSeconds(options.interval),
+      'output-period': rangeUtil.intervalToSeconds(options.interval),
     };
 
     const analytics = {

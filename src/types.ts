@@ -1,18 +1,10 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export type LightstepQueryLanguage = 'tql';
 export interface LightstepQuery extends DataQuery {
   projectName: string;
   text: string;
   format: string;
-  language: LightstepQueryLanguage;
-}
-
-export function defaultQuery(projectName: string): Partial<LightstepQuery> {
-  return {
-    projectName,
-    language: 'tql',
-  };
+  language: 'tql';
 }
 
 /**

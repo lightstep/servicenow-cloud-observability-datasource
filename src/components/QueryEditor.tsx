@@ -1,59 +1,31 @@
 import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
-import { BracesPlugin, QueryField, Select, Field, Input, Collapse } from '@grafana/ui';
+import { QueryField, Select, Field, Input, Collapse } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from './datasource';
-import { defaultQuery, LightstepDataSourceOptions, LightstepQuery } from './types';
+import { DataSource } from '../datasource';
+import { LightstepDataSourceOptions, LightstepQuery } from '../types';
 
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
-interface QueryEditorState {
-  errorMessage: string;
-  projects: string[];
+type State = {
   isOptionsOpen: boolean;
-}
+};
 
-export class QueryEditor extends PureComponent<Props, QueryEditorState> {
-  plugins: Plugin[] = [BracesPlugin()];
-  state: QueryEditorState = {
+/**
+ * Component responsible for the query text and options editing UI.
+ */
+export class QueryEditor extends PureComponent<Props, State> {
+  state = {
     isOptionsOpen: false,
-    errorMessage: '',
-    projects: [],
   };
 
-  componentDidMount() {
-    this.setState({ projects: this.props.datasource.fetchProjects() });
-  }
+  onQueryChange = (value: string) => {
+    const { onChange, query } = this.props;
 
-  componentWillUnmount() {
-    // Refresh chart if query is deleted
-    if (this.props.onRunQuery) {
-      this.props.onRunQuery();
-    }
-  }
-
-  clearSelections = () => {
-    this.setState({
-      projects: [],
-    });
+    onChange({ ...query, text: value });
+    // nb: query isn't run until user blurs or types shift+enter
   };
 
-  onQueryChange = (value: string, override?: boolean) => {
-    const { onChange, onRunQuery, query } = this.props;
-
-    if (onChange) {
-      onChange({ ...query, text: value });
-
-      if (value === '') {
-        this.clearSelections();
-      }
-
-      if (override && onRunQuery) {
-        onRunQuery();
-      }
-    }
-  };
-
-  onChangeFormat = (evt: React.FormEvent<HTMLInputElement>) => {
+  onFormatChange = (evt: React.FormEvent<HTMLInputElement>) => {
     const { onChange, onRunQuery, query } = this.props;
 
     onChange({ ...query, format: evt.currentTarget.value || '' });
@@ -68,39 +40,40 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       return;
     }
 
-    // Run onChange to update the query with the newly selected value
-    onChange({ ...query, projectName: value, text: '' });
-
-    // Run the query to clear chart data
+    onChange({ ...query, projectName: value });
     onRunQuery();
   };
 
   render() {
-    const query = defaults(this.props.query, defaultQuery(this.props.datasource.defaultProjectName()));
-    const projectNameOptions = this.state.projects.map((n) => {
-      return {
-        label: n,
-        value: n,
-      };
+    const projects = this.props.datasource.fetchProjects();
+
+    const query = defaults(this.props.query, {
+      projectName: this.props.datasource.defaultProjectName(),
+      language: 'tql',
     });
+    const projectNameOptions = projects.map((project) => ({
+      label: project,
+      value: project,
+    }));
+
     return (
       <div>
         <div className="gf-form">
-          {this.state.projects.length > 1 && (
+          {projects.length > 1 && (
             <Select
+              isSearchable={false}
+              menuPlacement="bottom"
               options={projectNameOptions}
               value={this.props.query.projectName}
-              menuPlacement="bottom"
-              onChange={this.onProjectSelectionChange}
-              isSearchable={false}
               width={20}
+              onChange={this.onProjectSelectionChange}
             />
           )}
 
           <QueryField
-            query={query.text}
             portalOrigin="lightstep"
             placeholder="Enter a query (Run with Shift + Enter)"
+            query={query.text}
             onBlur={this.props.onRunQuery}
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
@@ -109,8 +82,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         <div className="gf-form">
           <Collapse
             collapsible
-            label="Options"
             isOpen={this.state.isOptionsOpen}
+            label="Options"
             onToggle={() => this.setState({ isOptionsOpen: !this.state.isOptionsOpen })}
           >
             <Field
@@ -120,8 +93,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
               <Input
                 name="queryName"
                 spellCheck="false"
-                onChange={this.onChangeFormat}
                 value={this.props.query.format}
+                onChange={this.onFormatChange}
               />
             </Field>
           </Collapse>

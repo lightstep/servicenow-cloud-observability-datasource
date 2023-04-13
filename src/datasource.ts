@@ -7,12 +7,12 @@ import {
   FieldConfig,
   FieldType,
   MutableDataFrame,
+  rangeUtil,
 } from '@grafana/data';
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { stringify } from 'qs';
 
 import { LightstepDataSourceOptions, LightstepQuery } from './types';
-import { intervalToSeconds } from './rangeUtilPolyfill';
 
 // Internal types for this class
 type QueryResponse = {
@@ -33,6 +33,12 @@ type SimpleField = {
 
 const clickMillisPlaceholder = '_click_millis_placeholder_';
 
+/**
+ * THE DATASOURCE
+ *
+ * This class is the entry point for the plugin, and directly manages executing
+ * queries against the Lightstep API.
+ */
 export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourceOptions> {
   projectName: string;
   orgName: string;
@@ -171,7 +177,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       'youngest-time': options.range.to,
       query: queryWithVars,
       'input-language': query.language,
-      'output-period': intervalToSeconds(options.interval),
+      'output-period': rangeUtil.intervalToSeconds(options.interval),
     };
 
     const analytics = {

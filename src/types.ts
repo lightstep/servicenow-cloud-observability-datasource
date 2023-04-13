@@ -1,14 +1,19 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
+/**
+ * The complete query definition needed to request data from the Lightstep API.
+ */
 export interface LightstepQuery extends DataQuery {
   projectName: string;
+  /** The UQL query text string */
   text: string;
+  /** Custom display query name for chart tooltip and legend */
   format: string;
   language: 'tql';
 }
 
 /**
- * These are options configured for each DataSource instance
+ * The data source configuration options.
  */
 export interface LightstepDataSourceOptions extends DataSourceJsonData {
   orgName: string;
@@ -17,7 +22,9 @@ export interface LightstepDataSourceOptions extends DataSourceJsonData {
 }
 
 /**
- * Value that is used in the backend, but never sent over HTTP to the frontend
+ * Sensitive data source options that are stored in the Grafana backend.
+ * @remarks
+ * This is used to keep the Lightstep API key secret.
  */
 export interface LightstepSecureJsonData {
   apiKey?: string;

@@ -14,8 +14,6 @@ import { stringify } from 'qs';
 
 import { LightstepDataSourceOptions, LightstepQuery } from './types';
 
-rangeUtil.intervalToSeconds;
-
 // Internal types for this class
 type QueryResponse = {
   data: { attributes: { series: Series[] } };
@@ -35,6 +33,12 @@ type SimpleField = {
 
 const clickMillisPlaceholder = '_click_millis_placeholder_';
 
+/**
+ * THE DATASOURCE
+ *
+ * This class is the entry point for the plugin, and directly manages executing
+ * queries against the Lightstep API.
+ */
 export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourceOptions> {
   projectName: string;
   orgName: string;

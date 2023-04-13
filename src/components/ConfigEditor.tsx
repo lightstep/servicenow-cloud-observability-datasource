@@ -5,41 +5,55 @@ import { LightstepDataSourceOptions, LightstepSecureJsonData } from '../types';
 
 const { FormField, SecretFormField } = LegacyForms;
 
-interface Props extends DataSourcePluginOptionsEditorProps<LightstepDataSourceOptions> {}
+interface Props extends DataSourcePluginOptionsEditorProps<LightstepDataSourceOptions, LightstepSecureJsonData> {}
 
-interface State {}
-
-export class ConfigEditor extends PureComponent<Props, State> {
+/**
+ * Component responsible for the plugin configuration form shown when editing
+ * the data source.
+ */
+export class ConfigEditor extends PureComponent<Props> {
   onOrgNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      orgName: event.target.value,
-    };
-    onOptionsChange({ ...options, jsonData });
-  };
-  onProjectNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      projectName: event.target.value,
-    };
-    onOptionsChange({ ...options, jsonData });
-  };
-  onAPIHostChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      apiHost: event.target.value,
-    };
-    onOptionsChange({ ...options, jsonData });
-  };
 
-  // Secure field (only sent to the backend)
-  onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
+      jsonData: {
+        ...options.jsonData,
+        orgName: event.target.value,
+      },
+    });
+  };
+
+  onProjectNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        projectName: event.target.value,
+      },
+    });
+  };
+
+  onAPIHostChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        apiHost: event.target.value,
+      },
+    });
+  };
+
+  onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+
+    onOptionsChange({
+      ...options,
+      // Secure fields (only sent to the backend)
       secureJsonData: {
         apiKey: event.target.value,
       },
@@ -48,12 +62,14 @@ export class ConfigEditor extends PureComponent<Props, State> {
 
   onResetAPIKey = () => {
     const { onOptionsChange, options } = this.props;
+
     onOptionsChange({
       ...options,
       secureJsonFields: {
         ...options.secureJsonFields,
         apiKey: false,
       },
+      // Secure fields (only sent to the backend)
       secureJsonData: {
         ...options.secureJsonData,
         apiKey: '',
@@ -62,9 +78,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
   };
 
   render() {
-    const { options } = this.props;
-    const { jsonData, secureJsonFields } = options;
-    const secureJsonData: LightstepSecureJsonData = options.secureJsonData || {};
+    const { jsonData, secureJsonFields, secureJsonData } = this.props.options;
 
     const labelWidth = 8;
     const inputWidth = 20;
@@ -73,47 +87,46 @@ export class ConfigEditor extends PureComponent<Props, State> {
       <div className="gf-form-group">
         <div className="gf-form">
           <FormField
+            inputWidth={inputWidth}
             label="Organization Name"
             labelWidth={labelWidth}
-            inputWidth={inputWidth}
-            onChange={this.onOrgNameChange}
             value={jsonData.orgName || ''}
+            onChange={this.onOrgNameChange}
           />
         </div>
 
         <div className="gf-form">
           <FormField
+            inputWidth={inputWidth}
             label="Project Name"
             labelWidth={labelWidth}
-            inputWidth={inputWidth}
-            onChange={this.onProjectNameChange}
             value={jsonData.projectName || ''}
+            onChange={this.onProjectNameChange}
           />
         </div>
 
         <div className="gf-form">
           <FormField
+            inputWidth={inputWidth}
             label="API Host"
             labelWidth={labelWidth}
-            inputWidth={inputWidth}
-            onChange={this.onAPIHostChange}
             value={jsonData.apiHost || 'api.lightstep.com'}
+            onChange={this.onAPIHostChange}
           />
         </div>
 
         <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
-              isConfigured={Boolean(secureJsonFields && secureJsonFields.apiKey)}
-              value={secureJsonData.apiKey || ''}
-              label="API Key"
-              // Use empty string to prevent default 'Password' placeholder
-              placeholder=""
-              labelWidth={labelWidth}
               inputWidth={inputWidth}
+              isConfigured={Boolean(secureJsonFields && secureJsonFields.apiKey)}
+              label="API Key"
+              labelWidth={labelWidth}
+              placeholder="" // Use empty string to prevent default 'Password' placeholder
+              tooltip="API keys are located in Lightstep account settings"
+              value={secureJsonData?.apiKey || ''}
               onReset={this.onResetAPIKey}
               onChange={this.onAPIKeyChange}
-              tooltip="API keys are located in Lightstep account settings"
             />
           </div>
         </div>

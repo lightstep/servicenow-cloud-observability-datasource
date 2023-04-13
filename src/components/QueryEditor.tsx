@@ -6,12 +6,15 @@ import { DataSource } from '../datasource';
 import { LightstepDataSourceOptions, LightstepQuery } from '../types';
 
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
-interface QueryEditorState {
+type State = {
   isOptionsOpen: boolean;
-}
+};
 
-export class QueryEditor extends PureComponent<Props, QueryEditorState> {
-  state: QueryEditorState = {
+/**
+ * Component responsible for the query text and options editing UI.
+ */
+export class QueryEditor extends PureComponent<Props, State> {
+  state = {
     isOptionsOpen: false,
   };
 
@@ -19,7 +22,7 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
     const { onChange, query } = this.props;
 
     onChange({ ...query, text: value });
-    // Note query isn't run until user blurs or types shift+enter
+    // nb: query isn't run until user blurs or types shift+enter
   };
 
   onFormatChange = (evt: React.FormEvent<HTMLInputElement>) => {
@@ -48,31 +51,29 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
       projectName: this.props.datasource.defaultProjectName(),
       language: 'tql',
     });
-    const projectNameOptions = projects.map((project) => {
-      return {
-        label: project,
-        value: project,
-      };
-    });
+    const projectNameOptions = projects.map((project) => ({
+      label: project,
+      value: project,
+    }));
 
     return (
       <div>
         <div className="gf-form">
           {projects.length > 1 && (
             <Select
+              isSearchable={false}
+              menuPlacement="bottom"
               options={projectNameOptions}
               value={this.props.query.projectName}
-              menuPlacement="bottom"
-              onChange={this.onProjectSelectionChange}
-              isSearchable={false}
               width={20}
+              onChange={this.onProjectSelectionChange}
             />
           )}
 
           <QueryField
-            query={query.text}
             portalOrigin="lightstep"
             placeholder="Enter a query (Run with Shift + Enter)"
+            query={query.text}
             onBlur={this.props.onRunQuery}
             onChange={this.onQueryChange}
             onRunQuery={this.props.onRunQuery}
@@ -81,8 +82,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
         <div className="gf-form">
           <Collapse
             collapsible
-            label="Options"
             isOpen={this.state.isOptionsOpen}
+            label="Options"
             onToggle={() => this.setState({ isOptionsOpen: !this.state.isOptionsOpen })}
           >
             <Field
@@ -92,8 +93,8 @@ export class QueryEditor extends PureComponent<Props, QueryEditorState> {
               <Input
                 name="queryName"
                 spellCheck="false"
-                onChange={this.onFormatChange}
                 value={this.props.query.format}
+                onChange={this.onFormatChange}
               />
             </Field>
           </Collapse>

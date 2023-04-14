@@ -29,3 +29,18 @@ export interface LightstepDataSourceOptions extends DataSourceJsonData {
 export interface LightstepSecureJsonData {
   apiKey?: string;
 }
+
+type Point = [number, number];
+
+interface TimeseriesResponse {
+  data: {
+    attributes: {
+      series: Array<{
+        'group-labels': string[];
+        points: Point[];
+      }>;
+    };
+  };
+}
+
+export type ResponseData = TimeseriesResponse;

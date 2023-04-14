@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
-import { QueryField, Select, Field, Input, Collapse } from '@grafana/ui';
+import { QueryField, Select, Field, Input, Collapse, Badge } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { LightstepDataSourceOptions, LightstepQuery } from '../types';
@@ -58,6 +58,18 @@ export class QueryEditor extends PureComponent<Props, State> {
 
     return (
       <div>
+        <div className="gf-form">
+          <Badge
+            color="blue"
+            icon="external-link-alt"
+            text={
+              <a href="https://docs.lightstep.com/docs/uql-reference" target="_blank">
+                UQL Reference
+              </a>
+            }
+            style={{ marginLeft: 'auto' }}
+          />
+        </div>
         <div className="gf-form">
           {projects.length > 1 && (
             <Select

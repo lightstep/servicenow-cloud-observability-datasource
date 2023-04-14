@@ -63,7 +63,7 @@ export class QueryEditor extends PureComponent<Props, State> {
             color="blue"
             icon="external-link-alt"
             text={
-              <a href="https://docs.lightstep.com/docs/uql-reference" target="_blank">
+              <a href="https://docs.lightstep.com/docs/uql-cheatsheet" target="_blank">
                 UQL Reference
               </a>
             }

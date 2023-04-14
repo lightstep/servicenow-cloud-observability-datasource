@@ -1,6 +1,6 @@
 import { ArrayVector, Field, FieldType, MutableDataFrame } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
-import { LightstepQuery, ResponseData } from '../types';
+import { LightstepQuery, QueryTimeseriesRes } from '../types';
 
 /**
  * Response pre-processor that converts the LS response data into Grafana wide
@@ -31,7 +31,7 @@ import { LightstepQuery, ResponseData } from '../types';
  * ]
  * ```
  */
-export function preprocessTimeseries(res: ResponseData, query: LightstepQuery, notebookURL: string) {
+export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQuery, notebookURL: string) {
   const { series } = res.data.attributes;
 
   // If this is an empty query, bail 👋
@@ -122,7 +122,7 @@ export function createFieldName(format: string, queryText: string, groupLabels: 
  * Produces a sorted array of timestamps from every point in every series in the
  * query.
  */
-export function createSortedTimestamps(series: ResponseData['data']['attributes']['series']): number[] {
+export function createSortedTimestamps(series: QueryTimeseriesRes['data']['attributes']['series']): number[] {
   const timestampSet = new Set<number>();
 
   series.forEach((s) => {

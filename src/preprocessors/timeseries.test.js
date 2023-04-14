@@ -1,10 +1,24 @@
-import { createFieldName, generateSortedTimestamps, generateTimestampMap, DataSource } from './datasource.ts';
 import { setTemplateSrv } from '@grafana/runtime';
+import { createSortedTimestamps, createTimestampMap, createFieldName } from './timeseries';
 
-describe('generateSortedTimestamps', () => {
-  test('should compile and sort all timestamps across all series', () => {
-    // 🅐rrange
-    // Points are in the form [timestamp, value]
+beforeAll(() => {
+  // Create a mock template server
+  // nb this is used in the createFieldName tests
+  setTemplateSrv({
+    getVariables() {
+      return [];
+    },
+    replace(target, scopedVars, format) {
+      if (target.includes('$service')) {
+        return target.replace('$service', JSON.stringify(['web', 'android', 'ios']));
+      }
+      return target || '';
+    },
+  });
+});
+
+describe('createSortedTimestamps()', () => {
+  test('should assemble a complete set of sorted timestamps for all series', () => {
     const series1 = {
       points: [
         [222, 1.1],
@@ -19,20 +33,15 @@ describe('generateSortedTimestamps', () => {
       ],
     };
     const series4 = { points: [[444, 9.6]] };
-    const query = { data: { attributes: { series: [series1, series2, series3, series4] } } };
 
-    // 🅐ct
-    const sortedTimestamps = generateSortedTimestamps(query);
-
-    // 🅐ssert
-    expect(sortedTimestamps).toEqual([111, 222, 333, 444, 555, 666]);
+    expect(createSortedTimestamps([series1, series2, series3, series4])).toEqual([111, 222, 333, 444, 555, 666]);
   });
 });
 
-describe('generateTimestampMap', () => {
+describe('createTimestampMap()', () => {
   test("should map a timestamp's value to its index", () => {
     const timestamps = [555, 666];
-    const timestampMap = generateTimestampMap(timestamps);
+    const timestampMap = createTimestampMap(timestamps);
 
     expect(timestampMap).toEqual(
       new Map([
@@ -98,6 +107,14 @@ describe('createFieldName', () => {
       options: {},
       expected: 'custom {customer="Lightstep", method="/pay", service="api"}',
     },
+    {
+      name: 'returns query name when defined with template variables',
+      format: '$service requests',
+      queryText: 'metric requests | delta | filter service == $service',
+      groupLabels: undefined,
+      options: {},
+      expected: '["web","android","ios"] requests',
+    },
 
     // EDGE CASES
     {
@@ -110,51 +127,5 @@ describe('createFieldName', () => {
     },
   ])('$name', ({ format, queryText, groupLabels, options, expected }) => {
     expect(createFieldName(format, queryText, groupLabels, options)).toBe(expected);
-  });
-});
-
-//validate that the Grafana Template Vars are correctly replaced for Lightstep Change Intelligence in the query() func
-describe('validateQueryFields', () => {
-  // setup a test template server to mimic the real implementation
-  const settings = {
-    jsonData: {},
-    meta: {},
-  };
-  const ds = new DataSource(settings);
-  setTemplateSrv({
-    getVariables() {
-      return [];
-    },
-    replace(target, scopedVars, format) {
-      if (target === '$sensor') {
-        return JSON.stringify(['a', 'b', 'c']);
-      }
-      return target || '';
-    },
-  });
-
-  test('should validate the query field matches the value from Grafana template variable', () => {
-    const testQuery = [
-      {
-        text: 'metric requests',
-        refId: 'testName',
-        language: 'tql',
-      },
-    ];
-    const options = {
-      range: {
-        from: 0,
-        to: 0,
-      },
-    };
-    const expectedResult = {
-      tql_query: ['metric requests'],
-      title: 'Grafana Chart',
-      start_micros: 0,
-      end_micros: 0,
-      click_millis: '_click_millis_placeholder_',
-      source: 'lightstep-metrics-datasource',
-    };
-    expect(ds.notebookQueryFields(testQuery, options, 'lightstep-metrics-datasource')).toStrictEqual(expectedResult);
   });
 });

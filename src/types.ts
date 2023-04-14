@@ -30,9 +30,12 @@ export interface LightstepSecureJsonData {
   apiKey?: string;
 }
 
-type Point = [number, number];
+// --------------------------------------------------------
+// DATA SHAPES
 
-interface TimeseriesResponse {
+export type QueryRes = QueryTimeseriesRes;
+
+export interface QueryTimeseriesRes {
   data: {
     attributes: {
       series: Array<{
@@ -43,4 +46,4 @@ interface TimeseriesResponse {
   };
 }
 
-export type ResponseData = TimeseriesResponse;
+type Point = [timestamp: number, value: number];

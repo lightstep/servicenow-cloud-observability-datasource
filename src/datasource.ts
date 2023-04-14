@@ -29,8 +29,10 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   }
 
   /**
-   * Query for data, and optionally stream results
-   *  @remarks Grafana framework datasource hook
+   * Framework hook called by Grafana for each panel. Method is responsible for
+   * fetching data for each of the "targets" (aka queries) in the request
+   * options.
+   * @remarks Grafana framework datasource hook
    */
   async query(request: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     try {

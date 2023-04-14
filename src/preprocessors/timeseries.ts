@@ -135,6 +135,7 @@ export function createSortedTimestamps(series: QueryTimeseriesRes['data']['attri
 
   return Array.from(timestampSet).sort((a, b) => a - b);
 }
+
 /**
  * Produces a map of the timestamp array index for each timestamp value.
  */

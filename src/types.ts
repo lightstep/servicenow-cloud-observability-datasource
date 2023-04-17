@@ -29,3 +29,21 @@ export interface LightstepDataSourceOptions extends DataSourceJsonData {
 export interface LightstepSecureJsonData {
   apiKey?: string;
 }
+
+// --------------------------------------------------------
+// DATA SHAPES
+
+export type QueryRes = QueryTimeseriesRes;
+
+export interface QueryTimeseriesRes {
+  data: {
+    attributes: {
+      series: Array<{
+        'group-labels': string[];
+        points: Point[];
+      }>;
+    };
+  };
+}
+
+type Point = [timestamp: number, value: number];

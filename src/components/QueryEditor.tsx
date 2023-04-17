@@ -45,7 +45,7 @@ export class QueryEditor extends PureComponent<Props, State> {
   };
 
   render() {
-    const projects = this.props.datasource.fetchProjects();
+    const projects = this.props.datasource.projects();
 
     const query = defaults(this.props.query, {
       projectName: this.props.datasource.defaultProjectName(),

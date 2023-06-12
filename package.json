@@ -5,7 +5,7 @@
   "author": "Lightstep",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=16"
+    "node": "16"
   },
   "scripts": {
     "build": "grafana-toolkit plugin:build",
@@ -16,17 +16,17 @@
     "test": "grafana-toolkit plugin:test"
   },
   "dependencies": {
-    "@grafana/data": "9.4.7",
-    "@grafana/runtime": "9.4.7",
-    "@grafana/ui": "9.4.7",
+    "@grafana/data": "9.5.3",
+    "@grafana/runtime": "9.5.3",
+    "@grafana/ui": "9.5.3",
     "lodash": "4.17.21",
     "react": "17.0.2",
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@grafana/toolkit": "9.4.7",
+    "@grafana/toolkit": "9.5.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "12.1.5",
-    "@types/lodash": "4.14.192"
+    "@types/lodash": "4.14.195"
   }
 }

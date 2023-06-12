@@ -1,9 +1,3 @@
 # Changelog
 
-## 2.0.0
-
-- Updated to use the Lightstep Unified Query Language
-
-## 1.0.0
-
-- Initial release.
+Releases are documented on the Github [Releases](https://github.com/lightstep/servicenow-cloud-observability-datasource/releases) page.

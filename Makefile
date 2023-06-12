@@ -17,7 +17,7 @@ build-release:
 	rm -rf releases
 	mkdir -p releases
 	
-	ln -s dist lightstep-observability-datasource
-	zip -r "releases/$(RELEASE_FILE)" lightstep-observability-datasource
-	rm lightstep-observability-datasource
+	ln -s dist servicenow-cloud-observability-datasource
+	zip -r "releases/$(RELEASE_FILE)" servicenow-cloud-observability-datasource
+	rm servicenow-cloud-observability-datasource
 	echo "$(shell md5 < releases/$(RELEASE_FILE))  $(RELEASE_FILE)" > releases/$(RELEASE_FILE).md5

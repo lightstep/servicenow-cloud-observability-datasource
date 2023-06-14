@@ -1,37 +1,28 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "Lightstep Observability",
-  "id": "lightstep-observability-datasource",
+  "name": "ServiceNow Cloud Observability",
+  "id": "servicenow-cloud-observability-datasource",
   "metrics": true,
   "info": {
-    "description": "A Grafana datasource for Lightstep Observability",
+    "description": "Instantly visualize ServiceNow Cloud Observability data in Grafana",
     "author": {
-      "name": "Lightstep",
-      "url": "https://lightstep.com/"
+      "name": "ServiceNow Cloud Observability",
+      "url": "https://www.servicenow.com/products/observability.html"
     },
-    "keywords": [
-      "Lightstep",
-      "observability",
-      "Change Intelligence",
-      "OpenTelemetry",
-      "OTel",
-      "metrics",
-      "spans",
-      "traces"
-    ],
+    "keywords": ["ServiceNow", "cloud", "observability", "OpenTelemetry", "OTel", "metrics", "spans", "traces"],
     "logos": {
-      "small": "img/lightstep_logo.svg",
-      "large": "img/lightstep_logo.svg"
+      "small": "img/logo_small.svg",
+      "large": "img/logo_large.svg"
     },
     "links": [
       {
-        "name": "Lightstep",
-        "url": "https://lightstep.com"
+        "name": "ServiceNow Cloud Observability",
+        "url": "https://www.servicenow.com/products/observability.html"
       },
       {
         "name": "Github",
-        "url": "https://github.com/lightstep/lightstep-observability-datasource"
+        "url": "https://github.com/lightstep/servicenow-cloud-observability-datasource"
       }
     ],
     "screenshots": [],

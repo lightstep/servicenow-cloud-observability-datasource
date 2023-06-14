@@ -1,8 +1,8 @@
 {
-  "name": "lightstep-observability-datasource",
-  "version": "2.1.0",
-  "description": "A Grafana datasource for Lightstep Observability",
-  "author": "Lightstep",
+  "name": "servicenow-cloud-observability-datasource",
+  "version": "1.0.0",
+  "description": "A Grafana datasource for ServiceNow Cloud Observability",
+  "author": "ServiceNow Cloud Observability",
   "license": "Apache-2.0",
   "engines": {
     "node": "16"

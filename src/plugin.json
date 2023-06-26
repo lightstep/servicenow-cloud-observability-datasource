@@ -25,7 +25,12 @@
         "url": "https://github.com/lightstep/servicenow-cloud-observability-datasource"
       }
     ],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "overview",
+        "path": "img/grafana_dashboard_overview.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },

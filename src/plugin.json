@@ -28,7 +28,7 @@
     "screenshots": [
       {
         "name": "overview",
-        "path": "https://github.com/lightstep/lightstep-observability-datasource/blob/main/images/docs/grafana_dashboard_overview.png?raw=true"
+        "path": "img/grafana_dashboard_overview.png"
       }
     ],
     "version": "%VERSION%",

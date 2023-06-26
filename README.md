@@ -1,11 +1,6 @@
 # ServiceNow Cloud Observability
 
-<div align="center">
-  <img 
-    width="750" 
-    src="https://github.com/lightstep/lightstep-observability-datasource/blob/main/images/docs/grafana_dashboard_overview.png?raw=true"
-  />
-</div>
+![Dashboard powered by ServiceNow Cloud Observability data](https://github.com/lightstep/lightstep-observability-datasource/blob/main/images/docs/grafana_dashboard_overview.png?raw=true)
 
 ## Instantly visualize ServiceNow Cloud Observability data in Grafana
 

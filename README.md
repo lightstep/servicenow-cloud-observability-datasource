@@ -1,6 +1,6 @@
 # ServiceNow Cloud Observability
 
-![Dashboard powered by ServiceNow Cloud Observability data](https://github.com/lightstep/lightstep-observability-datasource/blob/main/images/docs/grafana_dashboard_overview.png?raw=true)
+![Dashboard powered by ServiceNow Cloud Observability data](https://github.com/lightstep/lightstep-observability-datasource/blob/main/src/img/grafana_dashboard_overview.png?raw=true)
 
 ## Instantly visualize ServiceNow Cloud Observability data in Grafana
 

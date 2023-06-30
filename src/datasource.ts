@@ -59,7 +59,8 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               'input-language': query.language,
               'oldest-time': request.range.from,
               'youngest-time': request.range.to,
-              'output-period': rangeUtil.intervalToSeconds(request.interval),
+              // query_timeseries minimum supported output-period is 1 second
+              'output-period': Math.max(1, rangeUtil.intervalToSeconds(request.interval)),
             },
             analytics: {
               anonymized_user: hashedEmail,

@@ -11,7 +11,7 @@
     "build": "grafana-toolkit plugin:build",
     "dev": "grafana-toolkit plugin:dev",
     "watch": "grafana-toolkit plugin:dev --watch",
-    "sign": "grafana-toolkit plugin:sign",
+    "sign": "sign-plugin",
     "format": "prettier --write src",
     "test": "grafana-toolkit plugin:test"
   },
@@ -24,6 +24,7 @@
     "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@grafana/sign-plugin": "1.0.2",
     "@grafana/toolkit": "9.5.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "12.1.5",

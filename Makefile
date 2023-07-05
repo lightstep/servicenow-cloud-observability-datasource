@@ -14,7 +14,6 @@ RELEASE_FILE :=$(shell cat package.json | jq -r .name)-$(shell cat package.json 
 .PHONY: build-release
 build-release: 
 	npm run build
-	cp package.json dist/
 	npm run sign
 
 	mv dist/ servicenow-cloudobservability-datasource

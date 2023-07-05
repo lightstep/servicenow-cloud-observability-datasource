@@ -168,7 +168,7 @@ export function createNotebookURL(
     title: 'Grafana Chart',
     start_micros: String(request.range.from.valueOf() * 1000),
     end_micros: String(request.range.to.valueOf() * 1000),
-    source: 'servicenow-cloud-observability-datasource',
+    source: 'servicenow-cloudobservability-datasource',
   });
 
   queries.forEach((query) => {

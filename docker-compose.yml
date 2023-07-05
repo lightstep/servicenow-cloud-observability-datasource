@@ -6,12 +6,12 @@ services:
     ports:
       - 3000:3000
     environment:
-      - GF_ALLOW_LOADING_UNSIGNED_PLUGINS=servicenow-cloud-observability-datasource
+      - GF_ALLOW_LOADING_UNSIGNED_PLUGINS=servicenow-cloudobservability-datasource
       - GF_LOG_LEVEL=debug
       - GF_DEFAULT_APP_MODE=development
     volumes:
       - grafana-storage:/var/lib/grafana
       - ./provisioning:/etc/grafana/provisioning
-      - ./dist:/var/lib/grafana/plugins/servicenow-cloud-observability-datasource
+      - ./dist:/var/lib/grafana/plugins/servicenow-cloudobservability-datasource
 volumes:
   grafana-storage:

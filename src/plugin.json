@@ -5,7 +5,7 @@
   "id": "servicenow-cloudobservability-datasource",
   "metrics": true,
   "info": {
-    "description": "Instantly visualize ServiceNow Cloud Observability data in Grafana",
+    "description": "Instantly visualize ServiceNow Cloud Observability (formerly known as Lightstep) data in Grafana",
     "author": {
       "name": "ServiceNow Cloud Observability",
       "url": "https://www.servicenow.com/products/observability.html"
@@ -25,12 +25,7 @@
         "url": "https://github.com/lightstep/servicenow-cloud-observability-datasource"
       }
     ],
-    "screenshots": [
-      {
-        "name": "overview",
-        "path": "img/grafana_dashboard_overview.png"
-      }
-    ],
+    "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },

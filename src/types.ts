@@ -33,17 +33,46 @@ export interface LightstepSecureJsonData {
 // --------------------------------------------------------
 // DATA SHAPES
 
-export type QueryRes = QueryTimeseriesRes;
+export type QueryRes = QueryLogsRes | QueryTimeseriesRes;
 
+/**
+ * Response shape for a timeseries query
+ * @example metric requests | rate | group_by [customer], sum
+ */
 export interface QueryTimeseriesRes {
   data: {
     attributes: {
       series: Array<{
         'group-labels': string[];
-        points: Point[];
+        /** Array of timestamp, value tuples */
+        points: Array<[timestamp: number, value: number]>;
       }>;
     };
   };
 }
 
-type Point = [timestamp: number, value: number];
+/**
+ * Response shape for a logs query.
+ * @example logs | filter tags.customer == "name"
+ */
+export interface QueryLogsRes {
+  data: {
+    attributes: {
+      /** Array of timestamp, event tuples */
+      logs: Array<
+        [
+          timestamp: number,
+          event: {
+            /** internal timestamp */
+            _ts: number;
+            observed_time: number;
+            severity: 'InfoSeverity' | 'WarningSeverity' | 'ErrorSeverity';
+            event: string;
+            tags: Record<string, string | number | boolean>;
+            _lid: number;
+          }
+        ]
+      >;
+    };
+  };
+}

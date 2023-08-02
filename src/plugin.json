@@ -3,6 +3,7 @@
   "type": "datasource",
   "name": "ServiceNow Cloud Observability",
   "id": "servicenow-cloudobservability-datasource",
+  "logs": true,
   "metrics": true,
   "info": {
     "description": "Instantly visualize ServiceNow Cloud Observability (formerly known as Lightstep) data in Grafana",

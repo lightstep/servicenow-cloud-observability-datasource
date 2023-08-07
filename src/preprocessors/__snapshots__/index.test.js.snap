@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`preprocesses logs successfully 1`] = `
+Object {
+  "fields": Array [
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "time",
+      "type": "time",
+      "values": Array [
+        1691409972788,
+        1691409971908,
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "content",
+      "type": "string",
+      "values": Array [
+        "one",
+        "two",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "level",
+      "type": "string",
+      "values": Array [
+        "error",
+        "info",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "severity",
+      "type": "string",
+      "values": Array [
+        "ErrorSeverity",
+        "InfoSeverity",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "http.status_code",
+      "type": "number",
+      "values": Array [
+        200,
+        undefined,
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "large_batch",
+      "type": "boolean",
+      "values": Array [
+        true,
+        false,
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "trace_id",
+      "type": "string",
+      "values": Array [
+        "d29a3fa8fb446ec65eb691a3259a541e",
+        "d0fa420269652931236c94bc54d2233e",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "customer",
+      "type": "string",
+      "values": Array [
+        undefined,
+        "hipcore",
+      ],
+    },
+  ],
+  "meta": Object {
+    "preferredVisualisationType": "logs",
+  },
+  "name": undefined,
+  "refId": "a",
+}
+`;

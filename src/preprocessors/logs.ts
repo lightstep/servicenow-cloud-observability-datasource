@@ -1,4 +1,4 @@
-import { MutableDataFrame, FieldType } from '@grafana/data';
+import { MutableDataFrame, FieldType, LogLevel } from '@grafana/data';
 import { LightstepQuery, QueryLogsRes } from 'types';
 
 /**
@@ -48,36 +48,116 @@ export function preprocessLogs(res: QueryLogsRes, query: LightstepQuery) {
   });
 
   res.data.attributes.logs.forEach(([timestamp, log]) => {
-    Object.entries(log.tags).forEach(([key, value]) => {
-      // Add every log tag to the set of detected fields once
-      if (!detectedFields.has(key)) {
-        detectedFields.set(key, true);
-        frame.addField({
-          name: key,
-          type: getFieldTypeForValue(value),
-        });
-      }
-    });
+    let tags = {};
+    if ('tags' in log && log.tags !== null && typeof log.tags === 'object') {
+      tags = log.tags;
+      Object.entries(log.tags).forEach(([key, value]) => {
+        // Add every log tag to the set of detected fields once
+        if (!detectedFields.has(key)) {
+          detectedFields.set(key, true);
+          frame.addField({
+            name: key,
+            type: getFieldTypeForValue(value),
+          });
+        }
+      });
+    }
 
     frame.add({
       time: timestamp,
       content: log.event,
-      level: SEVERITY_MAP[log.severity],
+      level: getLevel(log),
       severity: log.severity,
-      ...log.tags,
+      ...tags,
     });
   });
 
   return frame;
 }
 
-/** @ref https://grafana.com/docs/grafana/latest/explore/logs-integration/ */
-const SEVERITY_MAP = {
-  InfoSeverity: 'info',
-  ErrorSeverity: 'error',
-  WarningSeverity: 'warning',
-};
+// --------------------------------------------------------
+// INTERNAL
 
+/** Best effort mapping fn to detect the correct "level" for a log. This
+ * determines the color coding of the log line in the panel. */
+function getLevel(log: Record<string, unknown>): LogLevel {
+  let logLevel: unknown = log.severityNumber ?? log.severityText ?? log.level ?? log.severity ?? 0;
+
+  if (typeof logLevel === 'string') {
+    logLevel = logLevel.toLowerCase();
+  }
+
+  // --- Grafana natively support levels
+  if (String(logLevel) in LogLevel) {
+    return LogLevel[logLevel as LogLevel];
+  }
+
+  switch (logLevel) {
+    // --- OTel SeverityNumber
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+      return LogLevel.trace;
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+      return LogLevel.debug;
+    case 9:
+    case 10:
+    case 11:
+    case 12:
+      return LogLevel.info;
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+      return LogLevel.warning;
+    case 17:
+    case 18:
+    case 19:
+    case 20:
+      return LogLevel.error;
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+      return LogLevel.critical;
+
+    // --- OTel SeverityText
+    case 'trace':
+      return LogLevel.trace;
+    case 'debug':
+      return LogLevel.debug;
+    case 'info':
+      return LogLevel.info;
+    case 'warn':
+      return LogLevel.warning;
+    case 'error':
+      return LogLevel.error;
+    case 'fatal':
+      return LogLevel.critical;
+
+    // --- Misc common levels
+    case 'verboseseverity':
+      return LogLevel.debug;
+    case 'infoseverity':
+      return LogLevel.info;
+    case 'warningseverity':
+      return LogLevel.warning;
+    case 'errorseverity':
+      return LogLevel.error;
+    case 'immediateseverity':
+      return LogLevel.critical;
+    case 'fatalseverity':
+      return LogLevel.critical;
+    default:
+      return LogLevel.unknown;
+  }
+}
+
+/** Detects the correct FieldType enum for log fields */
 function getFieldTypeForValue(value: unknown): FieldType {
   switch (typeof value) {
     case 'string':

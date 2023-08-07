@@ -62,14 +62,9 @@ export interface QueryLogsRes {
       logs: Array<
         [
           timestamp: number,
-          event: {
-            /** internal timestamp */
-            _ts: number;
-            observed_time: number;
-            severity: 'InfoSeverity' | 'WarningSeverity' | 'ErrorSeverity';
-            event: string;
-            tags: Record<string, string | number | boolean>;
-            _lid: number;
+          /** nb: log fields do not have a formal schema */
+          log: {
+            [key: string]: unknown;
           }
         ]
       >;

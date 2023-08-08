@@ -125,7 +125,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
   /** Return the set of configured project names for data source */
   projects(): string[] {
-    return this.projectName.split(',');
+    // nb string replace removes optional whitespace between project names, eg:
+    // "dev, pre-prod, prod" -> ["dev", "pre-prod", "prod"]
+    return this.projectName.replace(/\s/g, '').split(',');
   }
 
   /** Returns the first configured project name for data source */

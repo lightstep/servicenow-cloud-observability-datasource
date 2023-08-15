@@ -40,35 +40,38 @@ export function preprocessLogs(res: QueryLogsRes, query: LightstepQuery) {
       preferredVisualisationType: 'logs',
     },
     fields: [
+      // time, content, and level are required by the Grafana panel, all other
+      // fields are considered custom fields
       { name: 'time', type: FieldType.time },
       { name: 'content', type: FieldType.string },
       { name: 'level', type: FieldType.string },
-      { name: 'severity', type: FieldType.string },
     ],
   });
 
   res.data.attributes.logs.forEach(([timestamp, log]) => {
-    let tags = {};
-    if ('tags' in log && log.tags !== null && typeof log.tags === 'object') {
-      tags = log.tags;
-      Object.entries(log.tags).forEach(([key, value]) => {
-        // Add every log tag to the set of detected fields once
-        if (!detectedFields.has(key)) {
-          detectedFields.set(key, true);
-          frame.addField({
-            name: key,
-            type: getFieldTypeForValue(value),
-          });
-        }
-      });
-    }
+    const { body, Body, event, ...customFields } = log;
+
+    const transformedFields: Record<string, unknown> = {};
+    Object.entries(customFields).forEach(([key, value]) => {
+      // Add every field to the set of detected fields once
+      if (!detectedFields.has(key)) {
+        detectedFields.set(key, true);
+        frame.addField({
+          name: key,
+          type: getFieldTypeForValue(value),
+        });
+      }
+
+      // Complex fields (objects, arrays) aren't supported by Grafana, so we
+      // need to stringify them
+      transformedFields[key] = typeof value === 'object' ? JSON.stringify(value) : value;
+    });
 
     frame.add({
       time: timestamp,
-      content: log.event,
+      content: body ?? Body ?? event ?? '',
       level: getLevel(log),
-      severity: log.severity,
-      ...tags,
+      ...transformedFields,
     });
   });
 

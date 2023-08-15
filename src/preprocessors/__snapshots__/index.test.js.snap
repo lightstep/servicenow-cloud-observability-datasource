@@ -46,41 +46,41 @@ Object {
     Object {
       "config": Object {},
       "labels": undefined,
-      "name": "http.status_code",
-      "type": "number",
+      "name": "tags",
+      "type": "other",
       "values": Array [
-        200,
-        undefined,
+        "{\\"http.status_code\\":200,\\"large_batch\\":true,\\"trace_id\\":\\"d29a3fa8fb446ec65eb691a3259a541e\\"}",
+        "{\\"customer\\":\\"hipcore\\",\\"large_batch\\":false,\\"trace_id\\":\\"d0fa420269652931236c94bc54d2233e\\"}",
       ],
     },
     Object {
       "config": Object {},
       "labels": undefined,
-      "name": "large_batch",
-      "type": "boolean",
-      "values": Array [
-        true,
-        false,
-      ],
-    },
-    Object {
-      "config": Object {},
-      "labels": undefined,
-      "name": "trace_id",
-      "type": "string",
-      "values": Array [
-        "d29a3fa8fb446ec65eb691a3259a541e",
-        "d0fa420269652931236c94bc54d2233e",
-      ],
-    },
-    Object {
-      "config": Object {},
-      "labels": undefined,
-      "name": "customer",
+      "name": "k8s_environment",
       "type": "string",
       "values": Array [
         undefined,
-        "hipcore",
+        "production",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "k8s_namespace",
+      "type": "string",
+      "values": Array [
+        undefined,
+        "default",
+      ],
+    },
+    Object {
+      "config": Object {},
+      "labels": undefined,
+      "name": "k8s_pod",
+      "type": "string",
+      "values": Array [
+        undefined,
+        "hipcore-pod",
       ],
     },
   ],

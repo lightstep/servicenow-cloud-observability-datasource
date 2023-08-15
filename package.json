@@ -1,6 +1,6 @@
 {
   "name": "servicenow-cloudobservability-datasource",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "A Grafana datasource for ServiceNow Cloud Observability",
   "author": "ServiceNow Cloud Observability",
   "license": "Apache-2.0",

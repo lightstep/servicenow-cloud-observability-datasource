@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import defaults from 'lodash/defaults';
-import { QueryField, Select, Field, Input, Collapse, Badge } from '@grafana/ui';
+import { QueryField, Field, Input, Collapse, Badge } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../datasource';
 import { LightstepDataSourceOptions, LightstepQuery } from '../types';
@@ -45,16 +45,10 @@ export class QueryEditor extends PureComponent<Props, State> {
   };
 
   render() {
-    const projects = this.props.datasource.projects();
-
     const query = defaults(this.props.query, {
-      projectName: this.props.datasource.defaultProjectName(),
+      projectName: this.props.datasource.projectName,
       language: 'tql',
     });
-    const projectNameOptions = projects.map((project) => ({
-      label: project,
-      value: project,
-    }));
 
     return (
       <div>
@@ -71,17 +65,6 @@ export class QueryEditor extends PureComponent<Props, State> {
           />
         </div>
         <div className="gf-form">
-          {projects.length > 1 && (
-            <Select
-              isSearchable={false}
-              menuPlacement="bottom"
-              options={projectNameOptions}
-              value={this.props.query.projectName}
-              width={20}
-              onChange={this.onProjectSelectionChange}
-            />
-          )}
-
           <QueryField
             portalOrigin="lightstep"
             placeholder="Enter a query (Run with Shift + Enter)"

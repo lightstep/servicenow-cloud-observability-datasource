@@ -38,21 +38,12 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     try {
       const hashedEmail = await hashEmail(config.bootData.user.email);
 
-      // All queries _should_ have a project name, this decoration _ensures_ it
-      request.targets.forEach((target) => {
-        if (!target.projectName) {
-          target.projectName = this.defaultProjectName();
-        }
-      });
-
       // Only make requests for non-empty, non-hidden queries
       const visibleTargets = request.targets.filter((query) => query.text && !query.hide);
 
-      const projectName = visibleTargets[0].projectName;
-      const notebookURL = createNotebookURL(request, visibleTargets, projectName);
-
+      const notebookURL = createNotebookURL(request, visibleTargets, this.projectName);
       const requests = visibleTargets.map(async (query) => {
-        const res = await getBackendSrv().post(`${this.url}/projects/${query.projectName}/telemetry/query_timeseries`, {
+        const res = await getBackendSrv().post(`${this.url}/projects/${this.projectName}/telemetry/query_timeseries`, {
           data: {
             attributes: {
               query: getTemplateSrv().replace(query.text, request.scopedVars),
@@ -95,7 +86,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     if (this.orgName === '') {
       return { status: 'error', message: 'Organization name is required' };
     }
-    if (this.defaultProjectName() === '') {
+    if (this.projectName === '') {
       return { status: 'error', message: 'Project name is required' };
     }
 
@@ -118,21 +109,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       // handled here: public/app/features/datasources/state/actions.ts
       throw err;
     }
-  }
-
-  // --------------------------------------------------------
-  // QUERY EDITOR METHODS
-
-  /** Return the set of configured project names for data source */
-  projects(): string[] {
-    // nb string replace removes optional whitespace between project names, eg:
-    // "dev, pre-prod, prod" -> ["dev", "pre-prod", "prod"]
-    return this.projectName.replace(/\s/g, '').split(',');
-  }
-
-  /** Returns the first configured project name for data source */
-  defaultProjectName(): string {
-    return this.projects()[0];
   }
 }
 

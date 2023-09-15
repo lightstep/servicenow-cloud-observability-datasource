@@ -37,10 +37,11 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   async query(request: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     try {
       const hashedEmail = await hashEmail(config.bootData.user.email);
+      const projects = this.projects();
 
       // All queries _should_ have a project name, this decoration _ensures_ it
       request.targets.forEach((target) => {
-        if (!target.projectName) {
+        if (!target.projectName || !projects.includes(target.projectName)) {
           target.projectName = this.defaultProjectName();
         }
       });

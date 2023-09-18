@@ -37,10 +37,13 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   async query(request: DataQueryRequest<LightstepQuery>): Promise<DataQueryResponse> {
     try {
       const hashedEmail = await hashEmail(config.bootData.user.email);
+      const projects = this.projects();
 
-      // All queries _should_ have a project name, this decoration _ensures_ it
+      // Project name check: Ensure that every query has a projectName defined, and that
+      // the defined value is in the current datasource's configured set of projects.
+      // nb: This is a required check when users have setup a datasource template variable
       request.targets.forEach((target) => {
-        if (!target.projectName) {
+        if (!projects.includes(target.projectName)) {
           target.projectName = this.defaultProjectName();
         }
       });

@@ -18,6 +18,21 @@ export class QueryEditor extends PureComponent<Props, State> {
     isOptionsOpen: false,
   };
 
+  componentDidMount(): void {
+    const { query, datasource, onChange, onRunQuery } = this.props;
+    const projects = datasource.projects();
+
+    // onMount the editor must validate the configured query projectName is part
+    // of the configured datasource's configured projects
+    // nb: This is a required check for users with multiple instances of the
+    // plugin installed, switching between them needs to also update the query
+    // project name value
+    if (!projects.includes(query.projectName)) {
+      onChange({ ...query, projectName: datasource.defaultProjectName() });
+      onRunQuery();
+    }
+  }
+
   onQueryChange = (value: string) => {
     const { onChange, query } = this.props;
 

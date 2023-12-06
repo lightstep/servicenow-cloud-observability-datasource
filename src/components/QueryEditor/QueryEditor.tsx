@@ -1,9 +1,12 @@
-import React, { PureComponent } from 'react';
-import defaults from 'lodash/defaults';
-import { QueryField, Select, Field, Input, Collapse, Badge } from '@grafana/ui';
+import { EditorView } from '@codemirror/view';
+import { css } from '@emotion/css';
+import { Select, Field, Input, Collapse, Badge, getTheme } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from '../datasource';
-import { LightstepDataSourceOptions, LightstepQuery } from '../types';
+import React, { PureComponent, createRef } from 'react';
+import invariant from 'tiny-invariant';
+import { DataSource } from '../../datasource';
+import { LightstepDataSourceOptions, LightstepQuery } from '../../types';
+import { createEditorView } from './codemirror';
 
 type Props = QueryEditorProps<DataSource, LightstepQuery, LightstepDataSourceOptions>;
 type State = {
@@ -14,6 +17,9 @@ type State = {
  * Component responsible for the query text and options editing UI.
  */
 export class QueryEditor extends PureComponent<Props, State> {
+  containerRef = createRef<HTMLDivElement>();
+  editorView: EditorView | null = null;
+
   state = {
     isOptionsOpen: false,
   };
@@ -31,6 +37,19 @@ export class QueryEditor extends PureComponent<Props, State> {
       onChange({ ...query, projectName: datasource.defaultProjectName() });
       onRunQuery();
     }
+
+    invariant(this.containerRef.current, 'QueryEditor mounted without editor ref');
+
+    this.editorView = createEditorView({
+      editorEl: this.containerRef.current,
+      initialText: query.text,
+      onQueryChange: this.onQueryChange,
+      onRunQuery,
+    });
+  }
+
+  componentWillUnmount(): void {
+    this.editorView?.destroy();
   }
 
   onQueryChange = (value: string) => {
@@ -60,12 +79,9 @@ export class QueryEditor extends PureComponent<Props, State> {
   };
 
   render() {
-    const projects = this.props.datasource.projects();
+    const theme = getTheme();
 
-    const query = defaults(this.props.query, {
-      projectName: this.props.datasource.defaultProjectName(),
-      language: 'tql',
-    });
+    const projects = this.props.datasource.projects();
     const projectNameOptions = projects.map((project) => ({
       label: project,
       value: project,
@@ -96,14 +112,36 @@ export class QueryEditor extends PureComponent<Props, State> {
               onChange={this.onProjectSelectionChange}
             />
           )}
+          <div
+            ref={this.containerRef}
+            className={css`
+              width: 100%;
 
-          <QueryField
-            portalOrigin="lightstep"
-            placeholder="Enter a query (Run with Shift + Enter)"
-            query={query.text}
-            onBlur={this.props.onRunQuery}
-            onChange={this.onQueryChange}
-            onRunQuery={this.props.onRunQuery}
+              .cm-editor {
+                border: 1px solid ${theme.colors.formInputBorder};
+                border-radius: ${theme.border.radius.sm};
+              }
+
+              .cm-focused {
+                outline: 2px solid ${theme.colors.formFocusOutline};
+              }
+
+              .cm-content {
+                padding: 6px 8px;
+                background-color: ${theme.colors.formInputBg};
+                // CodeMirror sets caret color to black, unset to support light/dark color modes
+                caret-color: unset;
+              }
+
+              .cm-gutters {
+                background-color: ${theme.colors.panelBg};
+                border: 1px solid ${theme.colors.panelBorder};
+              }
+
+              .cm-placeholder {
+                color: ${theme.colors.formInputPlaceholderText};
+              }
+            `}
           />
         </div>
         <div className="gf-form">

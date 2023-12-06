@@ -50,6 +50,9 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
 
       // Only make requests for non-empty, non-hidden queries
       const visibleTargets = request.targets.filter((query) => query.text && !query.hide);
+      if (visibleTargets.length === 0) {
+        return { data: [] };
+      }
 
       const projectName = visibleTargets[0].projectName;
       const notebookURL = createNotebookURL(request, visibleTargets, projectName);

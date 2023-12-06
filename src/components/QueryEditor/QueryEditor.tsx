@@ -4,7 +4,6 @@ import { Select, Field, Input, Collapse, Badge, getTheme } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import React, { PureComponent, createRef } from 'react';
 import invariant from 'tiny-invariant';
-
 import { DataSource } from '../../datasource';
 import { LightstepDataSourceOptions, LightstepQuery } from '../../types';
 import { createEditorView } from './codemirror';

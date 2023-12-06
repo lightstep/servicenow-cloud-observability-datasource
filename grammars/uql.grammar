@@ -1,0 +1,228 @@
+@top Query { pipeline* }
+
+@skip { space | Comment }
+
+// Every UQL query is a pipeline of stages, and a stage can itself can be a 
+// combination of pipelines for a subsequent join stage
+pipeline {
+  "(" pipeline+ ")" |
+  MetricStage |
+  ConstantStage |
+  SpansStage |
+  LogsStage |
+  SpansSampleStage |
+  DeltaStage |
+  LatestStage |
+  RateStage |
+  ReduceStage |
+  FilterStage |
+  GroupByStage |
+  JoinStage |
+  WithStage |
+  TopStage |
+  BottomStage |
+  PointStage |
+  Separator |
+  TimeShiftStage |
+  AssembleStage |
+  TraceFilterStage |
+  SummarizeByStage
+}
+
+// --- NON_TERMINAL RULES - PIPELINE STAGES
+
+// FETCH STAGES
+
+MetricStage {
+  kw<"metric"> Identifier
+}
+
+SpansStage {
+  kw<"spans"> SpanAggregation
+}
+
+LogsStage {
+  kw<"logs"> "count"
+}
+
+ConstantStage {
+  kw<"constant"> (String | Number)
+}
+
+SpansSampleStage {
+  kw<"spans_sample"> (booleanSep<Comparison>)?
+}
+
+// WINDOW OPERATION STAGES
+
+DeltaStage { 
+  // delta input_window {, output_window}
+  kw<"delta"> Duration ("," Duration)?
+}
+
+LatestStage {
+  // latest output_window
+  kw<"latest"> Duration
+}
+
+RateStage {
+  // rate input_window {, output_window}
+  kw<"rate"> Duration ("," Duration)?
+}
+
+ReduceStage {
+  // reduce input_window, {output_window,} reducer
+  kw<"reduce"> Duration ("," Duration)? "," Reducer
+}
+
+
+// SERIES OPERATION STAGES
+
+FilterStage {
+  // filter predicates...
+  kw<"filter"> FilterExpression |
+  kw<"point_filter"> FilterExpression
+}
+
+FilterExpression {
+  kw<"defined"> "(" Identifier ")" |
+  kw<"undefined"> "(" Identifier ")" |
+  booleanSep<Comparison>
+}
+
+GroupByStage {
+  // group_by [labels...], reducer
+  kw<"group_by"> "[" commaSep<Identifier> "]" "," Reducer
+}
+
+JoinStage {
+  // join join_expression {left_default, right_default}
+  kw<"join"> ValueExpression ("," Number "," Number)?
+}
+
+WithStage {
+  // with identifier1 = query1; identifier2 = query2;
+  kw<"with"> Identifier "="
+}
+
+TopStage {
+  // top {[labels...],} k reducer window
+  kw<"top"> ("[" commaSep<Identifier> "]" ",")? Integer "," Reducer ("," Duration)?
+}
+
+BottomStage {
+  // bottom {[labels...],} k reducer window
+  kw<"bottom"> ("[" commaSep<Identifier> "]" ",")? Integer "," Reducer ("," Duration)?
+}
+
+PointStage {
+  // point value_expression
+  kw<"point"> commaSep<ValueExpression>
+}
+
+TimeShiftStage {
+  // time_shift duration
+  kw<"time_shift"> Duration
+}
+
+// --- SPANS SAMPLE STAGES
+
+AssembleStage {
+  // assemble
+  kw<"assemble">
+}
+
+TraceFilterStage {
+  // trace_filter predicates...
+  kw<"trace_filter"> booleanSep<Comparison>
+}
+
+SummarizeByStage {
+  // summarize_by [labels...], reducer
+  kw<"summarize_by"> "[" commaSep<Identifier> "]" "," SummarizeByReducer ("," SummarizeByReducer)+
+}
+
+// --- NON-TERMINAL RULES - TOKENS
+
+Reducer { 
+  kw<"min"> | kw<"mean"> | kw<"max"> | kw<"sum"> | kw<"distribution"> | kw<"count"> | kw<"std_dev"> | kw<"count_nonzero">
+}
+
+SummarizeByReducer {
+  kw<"mean"> | kw<"count"> | kw<"count_unadjusted"> | kw<"fraction_true"> "(" Identifier ")"
+}
+
+ValueExpression {
+  kw<"percentile"> "(" ExpressionIdentifier "," Number ")" |
+  kw<"pow"> "(" ExpressionIdentifier "," Number ")" |
+  kw<"phrase_match"> "(" ExpressionIdentifier "," String ")" |
+  kw<"abs"> "(" ExpressionIdentifier ")" |
+  kw<"timestamp"> "(" ExpressionIdentifier ")" |
+  kw<"dist_sum"> "(" ExpressionIdentifier ")" |
+  kw<"dist_count"> "(" ExpressionIdentifier ")" |
+  kw<"round"> "(" ExpressionIdentifier ")" |
+  kw<"ceil"> "(" ExpressionIdentifier ")" |
+  kw<"floor"> "(" ExpressionIdentifier ")" |
+  kw<"contains"> "(" ExpressionIdentifier ")" |
+  // TODO: this needs to be a repeating binary expression, probably with support for parenthesis
+  BinaryValueExpression
+}
+
+BinaryValueExpression {
+  Number | Identifier ArithmeticOperator Number | Identifier
+}
+
+ExpressionIdentifier {
+  kw<"value"> | kw<"left"> | kw<"right">
+}
+
+Comparison {
+  Identifier BooleanOperator (String | Identifier | Number)
+}
+
+// --- TOKENS
+
+@tokens {
+  String { '"' (!["\\] | "\\" _)* '"' }
+
+  Identifier { $[a-zA-Z0-9._:] $[a-zA-Z0-9._:/-]* }
+
+  Duration { @digit+ ( "us" | "µs" | "ms" | "s" | "m" | "h" | "d" | "w" )}
+
+  Integer { @digit+ }
+
+  Number { @digit+ ("." (@digit)*)? }
+
+  SpanAggregation { ("count" | "count_unadjusted" | "latency" | "lightstep.bytesize" | String) }
+
+  @precedence { Duration, Number, Integer, Identifier }
+
+  Comment { "#" ![\n]* }
+
+  // Includes expression separators "|" and query separators ";"
+  Separator { $[|;] }
+
+  BooleanOperator { "!=" | "==" | "<" | ">" | "<=" | ">=" | "=~" | "!~" | "!" }
+
+  ArithmeticOperator { "*" | "/" | "+" | "-" }
+
+  LogicalOperator { "&&" | "||" }
+
+  space { @whitespace+ }
+
+  "(" ")" "&&" "||"
+}
+
+// --- TEMPLATES
+
+kw<term> { @specialize[@name={term}]<Identifier, term> }
+
+commaSep<content> {
+  content ("," content?)*
+}
+
+booleanSep<content> {
+  content (LogicalOperator content?)*
+}
+
+@detectDelim

@@ -1,90 +1,90 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`preprocesses logs successfully 1`] = `
-Object {
-  "fields": Array [
-    Object {
-      "config": Object {},
+{
+  "fields": [
+    {
+      "config": {},
       "labels": undefined,
       "name": "time",
       "type": "time",
-      "values": Array [
+      "values": [
         1691409972788,
         1691409971908,
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "content",
       "type": "string",
-      "values": Array [
+      "values": [
         "one",
         "two",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "level",
       "type": "string",
-      "values": Array [
+      "values": [
         "error",
         "info",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "severity",
       "type": "string",
-      "values": Array [
+      "values": [
         "ErrorSeverity",
         "InfoSeverity",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "tags",
       "type": "other",
-      "values": Array [
-        "{\\"http.status_code\\":200,\\"large_batch\\":true,\\"trace_id\\":\\"d29a3fa8fb446ec65eb691a3259a541e\\"}",
-        "{\\"customer\\":\\"hipcore\\",\\"large_batch\\":false,\\"trace_id\\":\\"d0fa420269652931236c94bc54d2233e\\"}",
+      "values": [
+        "{"http.status_code":200,"large_batch":true,"trace_id":"d29a3fa8fb446ec65eb691a3259a541e"}",
+        "{"customer":"hipcore","large_batch":false,"trace_id":"d0fa420269652931236c94bc54d2233e"}",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "k8s_environment",
       "type": "string",
-      "values": Array [
+      "values": [
         undefined,
         "production",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "k8s_namespace",
       "type": "string",
-      "values": Array [
+      "values": [
         undefined,
         "default",
       ],
     },
-    Object {
-      "config": Object {},
+    {
+      "config": {},
       "labels": undefined,
       "name": "k8s_pod",
       "type": "string",
-      "values": Array [
+      "values": [
         undefined,
         "hipcore-pod",
       ],
     },
   ],
-  "meta": Object {
+  "meta": {
     "preferredVisualisationType": "logs",
   },
   "name": undefined,

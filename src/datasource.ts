@@ -8,6 +8,7 @@ import {
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { preprocessData } from './preprocessors';
 import { LightstepDataSourceOptions, LightstepQuery } from './types';
+import { VariableEditor } from 'components/VariableEditor/VariableEditor';
 
 /**
  * THE DATASOURCE
@@ -26,6 +27,8 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     this.projectName = instanceSettings.jsonData.projectName || '';
     this.orgName = instanceSettings.jsonData.orgName || '';
     this.url = instanceSettings.url || '';
+
+    this.variables = new VariableEditor(this.url, this.defaultProjectName());
   }
 
   /**
@@ -61,12 +64,13 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
         const res = await getBackendSrv().post(`${this.url}/projects/${query.projectName}/telemetry/query_timeseries`, {
           data: {
             attributes: {
-              query: getTemplateSrv().replace(query.text, request.scopedVars),
+              query: query.text,
               'input-language': query.language,
               'oldest-time': request.range.from,
               'youngest-time': request.range.to,
               // query_timeseries minimum supported output-period is 1 second
               'output-period': Math.max(1, rangeUtil.intervalToSeconds(request.interval)),
+              'template-variables': createRequestVariables(),
             },
             analytics: {
               anonymized_user: hashedEmail,
@@ -140,6 +144,35 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
   defaultProjectName(): string {
     return this.projects()[0];
   }
+}
+
+/**
+ * Translates Grafana dashboard variables into a set of LS API template
+ * variables
+ */
+function createRequestVariables() {
+  return getTemplateSrv()
+    .getVariables()
+    .map((v) => {
+      if (v.type === 'query' || v.type === 'textbox' || v.type === 'custom' || v.type === 'constant') {
+        // normalize different variables values formats into request standard
+        // array of strings
+        const { value } = v.current;
+        let values = Array.isArray(value) ? value : [value];
+        if (values.length === 1 && values[0] === '$__all') {
+          values = [];
+        }
+
+        return {
+          name: v.name,
+          values,
+        };
+      }
+
+      // SKIP adhoc, datasource, system, and interval template variables
+      return false;
+    })
+    .filter(Boolean);
 }
 
 /**

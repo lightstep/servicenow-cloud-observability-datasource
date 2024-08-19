@@ -75,36 +75,41 @@ export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
    * For us, we currently don't have a "query" in the traditional UQL sense,
    * just an attribute key that we will fetch the values for.
    */
-  editor = ({ onChange, query }: QueryEditorProps<VariableDataSource, VariableQuery>) => {
+  editor = ({ onChange, query, range }: QueryEditorProps<VariableDataSource, VariableQuery>) => {
     // nb we don't have a way to scope the attribute keys request so we cache
     // the values for performance
     const attributeKeysCache = useRef<null | string[]>(null);
 
     // options fetching fn called on mount and on each change of the select
     // input
-    const loadOptions = useCallback(async (val: string) => {
-      if (attributeKeysCache.current === null) {
-        const res: AttributeRes = await getBackendSrv().post(
-          `${this.url}/projects/${this.projectName}/telemetry/attributes`,
-          {
-            data: {
-              'attribute-types': ['keys'],
-              'telemetry-types': ['spans', 'metrics', 'logs'],
-            },
-          }
-        );
-        attributeKeysCache.current = Object.keys(res.data);
-      }
+    const loadOptions = useCallback(
+      async (val: string) => {
+        if (attributeKeysCache.current === null) {
+          const res: AttributeRes = await getBackendSrv().post(
+            `${this.url}/projects/${this.projectName}/telemetry/attributes`,
+            {
+              data: {
+                'attribute-types': ['keys'],
+                'telemetry-types': ['spans', 'metrics', 'logs'],
+                'oldest-time': range?.from,
+                'youngest-time': range?.to,
+              },
+            }
+          );
+          attributeKeysCache.current = Object.keys(res.data);
+        }
 
-      const options: Array<SelectableValue<string>> = attributeKeysCache.current
-        .filter((key) => key.includes(val))
-        .map((key) => ({
-          label: key,
-          value: key,
-        }));
+        const options: Array<SelectableValue<string>> = attributeKeysCache.current
+          .filter((key) => key.includes(val))
+          .map((key) => ({
+            label: key,
+            value: key,
+          }));
 
-      return options;
-    }, []);
+        return options;
+      },
+      [range]
+    );
 
     return (
       <div className="gf-form">

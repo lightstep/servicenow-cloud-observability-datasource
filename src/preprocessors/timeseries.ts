@@ -1,4 +1,4 @@
-import { ArrayVector, Field, FieldType, MutableDataFrame } from '@grafana/data';
+import { Field, FieldType, MutableDataFrame } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { LightstepQuery, QueryTimeseriesRes } from '../types';
 

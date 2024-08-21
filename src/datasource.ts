@@ -110,7 +110,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
     }
 
     try {
-      await getBackendSrv().get(`${this.url}/test`);
+      await getBackendSrv().get(`${this.url}/projects/${this.defaultProjectName()}`);
       return {
         status: 'success',
         message: 'Data source is working',

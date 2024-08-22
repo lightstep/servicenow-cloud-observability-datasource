@@ -1,4 +1,4 @@
-import { ArrayVector, Field, FieldType, MutableDataFrame } from '@grafana/data';
+import { Field, FieldType, MutableDataFrame } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { LightstepQuery, QueryTimeseriesRes } from '../types';
 
@@ -50,11 +50,11 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
   const timestampToIndexMap = createTimestampMap(timestamps);
 
   const dataFrameFields: Field[] = [
-    { name: 'Time', type: FieldType.time, values: new ArrayVector(timestamps), config: {} },
+    { name: 'Time', type: FieldType.time, values: timestamps, config: {} },
   ];
 
   series.forEach((s) => {
-    const values = new ArrayVector(new Array(timestamps.length));
+    const values = new Array<number>(timestamps.length);
 
     // API will currently return undefined for series.points for series without
     // data instead of an empty array
@@ -63,7 +63,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
         const timestampIndex = timestampToIndexMap.get(timestamp);
 
         if (timestampIndex !== undefined) {
-          values.set(timestampIndex, value);
+          values[timestampIndex] = value;
         }
       });
     }

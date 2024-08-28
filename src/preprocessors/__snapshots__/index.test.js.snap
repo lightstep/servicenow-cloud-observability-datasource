@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`preprocesses logs successfully 1`] = `
+exports[`logs preprocesses successfully 1`] = `
 {
   "fields": [
     {
@@ -89,5 +89,70 @@ exports[`preprocesses logs successfully 1`] = `
   },
   "name": undefined,
   "refId": "a",
+}
+`;
+
+exports[`preprocesses Timeseries successfully should set displayNameDS with legend formatter 1`] = `
+{
+  "fields": [
+    {
+      "config": {},
+      "labels": undefined,
+      "name": "Time",
+      "type": "time",
+      "values": [
+        0,
+        1,
+        2,
+      ],
+    },
+    {
+      "config": {
+        "displayNameFromDS": "/get",
+        "links": [
+          {
+            "targetBlank": true,
+            "title": "Create a Notebook in Lightstep",
+            "url": "https://notebooks",
+          },
+        ],
+      },
+      "labels": {
+        "operation": "/get",
+      },
+      "name": "Value",
+      "type": "number",
+      "values": [
+        1,
+        7,
+        1,
+      ],
+    },
+    {
+      "config": {
+        "displayNameFromDS": "/load",
+        "links": [
+          {
+            "targetBlank": true,
+            "title": "Create a Notebook in Lightstep",
+            "url": "https://notebooks",
+          },
+        ],
+      },
+      "labels": {
+        "operation": "/load",
+      },
+      "name": "Value",
+      "type": "number",
+      "values": [
+        6,
+        5,
+        9,
+      ],
+    },
+  ],
+  "meta": undefined,
+  "name": undefined,
+  "refId": undefined,
 }
 `;

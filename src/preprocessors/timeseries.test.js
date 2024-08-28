@@ -1,21 +1,4 @@
-import { setTemplateSrv } from '@grafana/runtime';
-import { createSortedTimestamps, createTimestampMap, createFieldName } from './timeseries';
-
-beforeAll(() => {
-  // Create a mock template server
-  // nb this is used in the createFieldName tests
-  setTemplateSrv({
-    getVariables() {
-      return [];
-    },
-    replace(target, scopedVars, format) {
-      if (target.includes('$service')) {
-        return target.replace('$service', JSON.stringify(['web', 'android', 'ios']));
-      }
-      return target || '';
-    },
-  });
-});
+import { createSortedTimestamps, createTimestampMap, transformLabels } from './timeseries';
 
 describe('createSortedTimestamps()', () => {
   test('should assemble a complete set of sorted timestamps for all series', () => {
@@ -54,78 +37,20 @@ describe('createTimestampMap()', () => {
   });
 });
 
-describe('createFieldName', () => {
-  test.each([
-    // NO QUERY NAME DEFINED
-    {
-      name: 'returns query text when there are undefined group labels without query name',
-      format: undefined,
-      queryText: 'metric requests | delta',
-      groupLabels: undefined,
-      options: {},
-      expected: 'metric requests | delta',
-    },
-    {
-      name: 'returns query text when there are empty group labels without query name',
-      format: undefined,
-      queryText: 'metric requests | delta',
-      groupLabels: [],
-      options: {},
-      expected: 'metric requests | delta',
-    },
-    {
-      name: 'returns formatted single label without query name',
-      format: undefined,
-      queryText: 'metric requests | delta',
-      groupLabels: ['customer=Lightstep'],
-      options: {},
-      expected: '{customer="Lightstep"}',
-    },
-    {
-      name: 'returns query text when there are empty group labels without query name',
-      format: undefined,
-      queryText: 'metric requests | delta',
-      groupLabels: ['customer=Lightstep', 'service=api', 'method=/pay'],
-      options: {},
-      expected: '{customer="Lightstep", method="/pay", service="api"}',
-    },
+describe('transformLabels', () => {
+  it('single label', () => {
+    expect(transformLabels(['customer=Lightstep'])).toEqual({ customer: 'Lightstep' });
+  });
 
-    // CUSTOM QUERY NAME DEFINED
-    {
-      name: 'returns query name when defined',
-      format: 'custom',
-      queryText: 'metric requests | delta',
-      groupLabels: undefined,
-      options: {},
-      expected: 'custom',
-    },
-    {
-      name: 'returns query name when defined with group labels',
-      format: 'custom',
-      queryText: 'metric requests | delta',
-      groupLabels: ['customer=Lightstep', 'service=api', 'method=/pay'],
-      options: {},
-      expected: 'custom {customer="Lightstep", method="/pay", service="api"}',
-    },
-    {
-      name: 'returns query name when defined with template variables',
-      format: '$service requests',
-      queryText: 'metric requests | delta | filter service == $service',
-      groupLabels: undefined,
-      options: {},
-      expected: '["web","android","ios"] requests',
-    },
+  it('missing label value', () => {
+    expect(transformLabels(['customer='])).toEqual({ customer: '<undefined>' });
+  });
 
-    // EDGE CASES
-    {
-      name: 'handles "=" in group label value',
-      format: undefined,
-      queryText: 'metric requests | delta',
-      groupLabels: ['compare=true==true'],
-      options: {},
-      expected: '{compare="true==true"}',
-    },
-  ])('$name', ({ format, queryText, groupLabels, options, expected }) => {
-    expect(createFieldName(format, queryText, groupLabels, options)).toBe(expected);
+  it('multi labels', () => {
+    expect(transformLabels(['customer=LightStep', 'service=web'])).toEqual({ customer: 'LightStep', service: 'web' });
+  });
+
+  it('no labels', () => {
+    expect(transformLabels([])).toEqual({});
   });
 });

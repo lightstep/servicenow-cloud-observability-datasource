@@ -1,7 +1,5 @@
 import { Field, FieldType, toDataFrame, Labels, TIME_SERIES_VALUE_FIELD_NAME } from '@grafana/data';
 import { LightstepQuery, QueryTimeseriesRes } from '../types';
-import { template } from 'lodash';
-
 
 /**
  * Response pre-processor that converts the LS response data into Grafana wide
@@ -69,7 +67,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
       });
     }
 
-    const labels: Labels = transformLabels(s['group-labels']);
+    const labels: Labels = transformLabels(s['group-labels'] || []);
 
     dataFrameFields.push({
       name: TIME_SERIES_VALUE_FIELD_NAME,
@@ -143,5 +141,6 @@ export function createTimestampMap(timestamps: number[]): Map<number, number> {
 
 // TODO: remove when Grafana 10 is the minimum supported version
 function legenedFormatter(legend: string, labels: Labels) {
-  return template(legend, {interpolate: /{{([\s\S]+?)}}/g})(labels);
+  const aliasRegex = /\{\{\s*(.+?)\s*\}\}/g;
+  return legend.replace(aliasRegex, (_, group) => (labels[group] ? labels[group] : "<undefined>"));
 }

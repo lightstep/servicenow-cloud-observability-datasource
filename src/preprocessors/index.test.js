@@ -95,4 +95,24 @@ describe('preprocesses Timeseries successfully', () => {
     const query = { projectName: 'demo', format: '{{operation}}' };
     expect(preprocessData(res, query, 'https://notebooks')).toMatchSnapshot();
   });
+
+  it('should work if there are no labels and no legend', () => {
+    const res = {
+      data: {
+        attributes: {
+          series: [
+            {
+              points: [
+                [0, 1],
+                [1, 7],
+                [2, 1],
+              ],
+            },
+          ],
+        },
+      },
+    };
+    const query = { projectName: 'demo', format: undefined };
+    expect(preprocessData(res, query, 'https://notebooks')).toMatchSnapshot();
+  });
 });

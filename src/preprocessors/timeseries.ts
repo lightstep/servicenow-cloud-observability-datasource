@@ -67,7 +67,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
       });
     }
 
-    const labels: Labels = transformLabels(s['group-labels'] || []);
+    const labels: Labels = transformLabels(s['group-labels']);
 
     dataFrameFields.push({
       name: TIME_SERIES_VALUE_FIELD_NAME,
@@ -97,7 +97,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
 // --------------------------------------------------------
 // UTILS
 
-export function transformLabels(groupLabels: string[]) {
+export function transformLabels(groupLabels: string[] = []) {
   const labels: Labels = {};
   groupLabels.reduce((acc, l) => {
     const data = l.split('=');
@@ -140,7 +140,7 @@ export function createTimestampMap(timestamps: number[]): Map<number, number> {
 }
 
 // TODO: remove when Grafana 10 is the minimum supported version
-function legenedFormatter(legend: string, labels: Labels) {
+function legenedFormatter(legend = "", labels: Labels) {
   const aliasRegex = /\{\{\s*(.+?)\s*\}\}/g;
   return legend.replace(aliasRegex, (_, group) => (labels[group] ? labels[group] : "<undefined>"));
 }

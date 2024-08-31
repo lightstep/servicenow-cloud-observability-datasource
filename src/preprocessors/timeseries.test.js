@@ -52,5 +52,6 @@ describe('transformLabels', () => {
 
   it('no labels', () => {
     expect(transformLabels([])).toEqual({});
+    expect(transformLabels(undefined)).toEqual({});
   });
 });

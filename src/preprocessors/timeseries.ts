@@ -139,8 +139,9 @@ export function createTimestampMap(timestamps: number[]): Map<number, number> {
   return timestampToIndexMap;
 }
 
-// TODO: remove when Grafana 10 is the minimum supported version
 function legenedFormatter(legend = "", labels: Labels) {
+  // nb: We're slightly divergent from `renderLegendFormat` available in v10+
+  // since they just repeat the key if a label value is undefined
   const aliasRegex = /\{\{\s*(.+?)\s*\}\}/g;
   return legend.replace(aliasRegex, (_, group) => (labels[group] ? labels[group] : "<undefined>"));
 }

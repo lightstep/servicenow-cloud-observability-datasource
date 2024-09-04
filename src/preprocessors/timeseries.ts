@@ -1,5 +1,4 @@
-import { Field, FieldType, MutableDataFrame } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
+import { Field, FieldType, toDataFrame, Labels, TIME_SERIES_VALUE_FIELD_NAME } from '@grafana/data';
 import { LightstepQuery, QueryTimeseriesRes } from '../types';
 
 /**
@@ -26,8 +25,8 @@ import { LightstepQuery, QueryTimeseriesRes } from '../types';
  * ```js
  * [
  *   { name: 'Time', type: FieldType.time, values: [0, 1, 2] },
- *   { name: '{operation="/get"}', type: FieldType.number, values: [1, 7, 1] },
- *   { name: '{operation="/load"}', type: FieldType.number, values: [6, 5, 9] }
+ *   { name: 'Value', type: FieldType.number, values: [1, 7, 1], labels: {operation:"/get"} },
+ *   { name: 'Value', type: FieldType.number, values: [6, 5, 9], labels: {operation:"/load"} }
  * ]
  * ```
  */
@@ -36,7 +35,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
 
   // If this is an empty query, bail 👋
   if (!series) {
-    return new MutableDataFrame({
+    return toDataFrame({
       refId: query.refId,
       fields: [],
     });
@@ -68,11 +67,16 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
       });
     }
 
+    const labels: Labels = transformLabels(s['group-labels']);
+
     dataFrameFields.push({
-      name: createFieldName(query.format, query.text, s['group-labels']),
+      name: TIME_SERIES_VALUE_FIELD_NAME,
       type: FieldType.number,
       values,
+      labels: labels,
+
       config: {
+        displayNameFromDS: legenedFormatter(query.format, labels),
         links: [
           {
             url: notebookURL,
@@ -84,7 +88,7 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
     });
   });
 
-  return new MutableDataFrame({
+  return toDataFrame({
     refId: query.refId,
     fields: dataFrameFields,
   });
@@ -93,29 +97,15 @@ export function preprocessTimeseries(res: QueryTimeseriesRes, query: LightstepQu
 // --------------------------------------------------------
 // UTILS
 
-/**
- * Produces a formatted display name for a series
- */
-export function createFieldName(format: string, queryText: string, groupLabels: string[] = []) {
-  let formattedLabels = '';
-
-  if (groupLabels.length > 0) {
-    formattedLabels = `{${groupLabels
-      .sort((a, b) => a.localeCompare(b))
-      // Surround label value in double quotes (e.g. 'key=value' => 'key="value"')
-      .map((labelKeyAndValue) => labelKeyAndValue.replace('=', '="') + '"')
-      .join(', ')}}`;
-  }
-
-  if (format) {
-    return getTemplateSrv().replace(format) + (formattedLabels.length > 0 ? ' ' + formattedLabels : '');
-  }
-
-  if (groupLabels.length > 0) {
-    return formattedLabels;
-  }
-
-  return queryText;
+export function transformLabels(groupLabels: string[] = []) {
+  const labels: Labels = {};
+  groupLabels.reduce((acc, l) => {
+    const data = l.split('=');
+    // if label value is missing grafana goes defaults to something like "Value 5"
+    acc[data[0]] = data[1] !== '' ? data[1] : '<undefined>';
+    return acc;
+  }, labels);
+  return labels;
 }
 
 /**
@@ -147,4 +137,11 @@ export function createTimestampMap(timestamps: number[]): Map<number, number> {
   }
 
   return timestampToIndexMap;
+}
+
+function legenedFormatter(legend = "", labels: Labels) {
+  // nb: We're slightly divergent from `renderLegendFormat` available in v10+
+  // since they just repeat the key if a label value is undefined
+  const aliasRegex = /\{\{\s*(.+?)\s*\}\}/g;
+  return legend.replace(aliasRegex, (_, group) => (labels[group] ? labels[group] : "<undefined>"));
 }

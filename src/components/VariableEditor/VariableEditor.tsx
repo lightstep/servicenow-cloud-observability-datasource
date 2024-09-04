@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from 'react';
-import { AsyncSelect, InlineField } from '@grafana/ui';
+import { AsyncSelect, Field, InlineField, TextArea } from '@grafana/ui';
 import { DataQuery } from '@grafana/schema';
 import { getBackendSrv } from '@grafana/runtime';
 import {
@@ -10,8 +10,9 @@ import {
   QueryEditorProps,
   SelectableValue,
 } from '@grafana/data';
-import { Observable } from 'rxjs';
+import { Observable, from , map} from 'rxjs';
 import invariant from 'tiny-invariant';
+import { createRequestVariables } from 'datasource';
 
 /**
  * The _Variables_ DataSource is defined separately from the UQL query
@@ -25,6 +26,7 @@ import invariant from 'tiny-invariant';
 type VariableDataSource = DataSourceApi<VariableQuery>;
 interface VariableQuery extends DataQuery {
   attributeKey: string;
+  scopeFilterExpression?: string;
 }
 
 export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
@@ -38,7 +40,7 @@ export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
    */
   query = (request: DataQueryRequest<VariableQuery>): Observable<DataQueryResponse> => {
     const { url, projectName } = this;
-    const { attributeKey } = request.targets[0];
+    const { attributeKey, scopeFilterExpression } = request.targets[0];
     invariant(typeof attributeKey === 'string', 'Invalid attribute key');
 
     return new Observable((subscriber) => {
@@ -50,6 +52,8 @@ export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
             'scope-to-attribute-keys': [attributeKey],
             'oldest-time': request.range.from,
             'youngest-time': request.range.to,
+            'template-variables': createRequestVariables(),
+            'scope-to-filter-expression': scopeFilterExpression
           },
         })
         .then((res: AttributeRes) => {
@@ -112,23 +116,40 @@ export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
     );
 
     return (
-      <div className="gf-form">
-        <InlineField
-          label="Attribute key"
-          tooltip="Cloud Observability uses this key to populate the selectable values for the variable when viewing the dashboard. Choose from any attributes currently on your logs, metics, or traces."
-        >
-          <AsyncSelect
-            defaultOptions
-            cacheOptions
-            defaultValue={query ? { label: query.attributeKey, value: query.attributeKey } : undefined}
-            loadOptions={loadOptions}
-            onChange={(v) => {
-              if (v.value) {
-                onChange({ refId: v.value, attributeKey: v.value });
-              }
-            }}
-          />
-        </InlineField>
+      <div>
+        <div className="gf-form">
+          <InlineField
+            label="Attribute key"
+            tooltip="Cloud Observability uses this key to populate the selectable values for the variable when viewing the dashboard. Choose from any attributes currently on your logs, metics, or traces."
+          >
+            <AsyncSelect
+              defaultOptions
+              cacheOptions
+              defaultValue={query ? { label: query.attributeKey, value: query.attributeKey } : undefined}
+              loadOptions={loadOptions}
+              onChange={(v) => {
+                if (v.value) {
+                  onChange({...query, refId: v.value, attributeKey: v.value });
+                }
+              }}
+            />
+          </InlineField>
+        </div>
+
+        <div>
+          <Field label="UQL Filter Expression">
+              <TextArea
+                type="text"
+                width="100px"
+                rows={2}
+                defaultValue={query.scopeFilterExpression}
+                onChange={(ev) => {
+                if (ev.currentTarget.value) {
+                  onChange({...query, scopeFilterExpression: ev.currentTarget.value})
+                }
+              }} />
+          </Field>
+        </div>
       </div>
     );
   };

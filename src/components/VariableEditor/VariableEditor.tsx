@@ -10,7 +10,7 @@ import {
   QueryEditorProps,
   SelectableValue,
 } from '@grafana/data';
-import { Observable, from , map} from 'rxjs';
+import { Observable} from 'rxjs';
 import invariant from 'tiny-invariant';
 import { createRequestVariables } from 'datasource';
 

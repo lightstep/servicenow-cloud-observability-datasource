@@ -125,6 +125,7 @@ export class VariableEditor extends CustomVariableSupport<VariableDataSource> {
             <AsyncSelect
               defaultOptions
               cacheOptions
+              allowCustomValue={true}
               defaultValue={query ? { label: query.attributeKey, value: query.attributeKey } : undefined}
               loadOptions={loadOptions}
               onChange={(v) => {

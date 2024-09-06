@@ -1,5 +1,3 @@
-version: '3.0'
-
 services:
   grafana:
     container_name: 'servicenow-cloudobservability-datasource'
@@ -8,7 +6,7 @@ services:
       context: ./.config
       args:
         grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
-        grafana_version: ${GRAFANA_VERSION:-8.4.7}
+        grafana_version: ${GRAFANA_VERSION:-9.5.21}
     ports:
       - 3000:3000/tcp
     volumes:

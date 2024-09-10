@@ -35,3 +35,8 @@ e2e-results/
 # generated plugin
 dist/
 releases/
+
+# terraform
+.terraform*
+terraform.*
+*.tfvars

@@ -4,6 +4,7 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   rangeUtil,
+  ScopedVars
 } from '@grafana/data';
 import { config, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { preprocessData } from './preprocessors';
@@ -61,6 +62,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
       const notebookURL = createNotebookURL(request, visibleTargets, projectName);
 
       const requests = visibleTargets.map(async (query) => {
+
         const res = await getBackendSrv().post(`${this.url}/projects/${query.projectName}/telemetry/query_timeseries`, {
           data: {
             attributes: {
@@ -70,7 +72,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
               'youngest-time': request.range.to,
               // query_timeseries minimum supported output-period is 1 second
               'output-period': Math.max(1, rangeUtil.intervalToSeconds(request.interval)),
-              'template-variables': createRequestVariables(),
+              'template-variables': createRequestVariables(request.scopedVars),
             },
             analytics: {
               anonymized_user: hashedEmail,
@@ -150,7 +152,7 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
  * Translates Grafana dashboard variables into a set of LS API template
  * variables
  */
-function createRequestVariables() {
+export function createRequestVariables(scopedVars?: ScopedVars) {
   return getTemplateSrv()
     .getVariables()
     .map((v) => {
@@ -161,6 +163,16 @@ function createRequestVariables() {
         let values = Array.isArray(value) ? value : [value];
         if (values.length === 1 && values[0] === '$__all') {
           values = [];
+        }
+
+        // check if there are scopedVars in the request
+        // that will override the template variable
+        // nb: Panel options like Repeat will set scopedVars based on the selected template variable
+        if (scopedVars && scopedVars?.[v.name]) {
+          const scopedVar = scopedVars[v.name]?.text ?? "";
+          if (scopedVar !== "") {
+            values = [scopedVar]
+          }
         }
 
         return {

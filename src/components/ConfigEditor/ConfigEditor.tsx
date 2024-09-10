@@ -80,7 +80,7 @@ export class ConfigEditor extends PureComponent<Props> {
   render() {
     const { jsonData, secureJsonFields, secureJsonData } = this.props.options;
 
-    const labelWidth = 8;
+    const labelWidth = 12;
     const inputWidth = 20;
 
     return (

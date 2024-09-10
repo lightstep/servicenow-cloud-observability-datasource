@@ -97,7 +97,6 @@ exports[`preprocesses Timeseries successfully should set displayNameDS with lege
   "fields": [
     {
       "config": {},
-      "labels": undefined,
       "name": "Time",
       "type": "time",
       "values": [
@@ -151,8 +150,7 @@ exports[`preprocesses Timeseries successfully should set displayNameDS with lege
       ],
     },
   ],
-  "meta": undefined,
-  "name": undefined,
+  "length": 3,
   "refId": undefined,
 }
 `;
@@ -162,7 +160,6 @@ exports[`preprocesses Timeseries successfully should work if there are no labels
   "fields": [
     {
       "config": {},
-      "labels": undefined,
       "name": "Time",
       "type": "time",
       "values": [
@@ -192,8 +189,7 @@ exports[`preprocesses Timeseries successfully should work if there are no labels
       ],
     },
   ],
-  "meta": undefined,
-  "name": undefined,
+  "length": 3,
   "refId": undefined,
 }
 `;
@@ -203,7 +199,6 @@ exports[`preprocesses Timeseries successfully should work if there are no labels
   "fields": [
     {
       "config": {},
-      "labels": undefined,
       "name": "Time",
       "type": "time",
       "values": [
@@ -233,8 +228,7 @@ exports[`preprocesses Timeseries successfully should work if there are no labels
       ],
     },
   ],
-  "meta": undefined,
-  "name": undefined,
+  "length": 3,
   "refId": undefined,
 }
 `;

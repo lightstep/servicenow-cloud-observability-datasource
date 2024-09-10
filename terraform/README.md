@@ -16,5 +16,6 @@ Where the `vars.tfvars` specifies Grafana service account token and Cloud Observ
 
 ```
 grafana_auth = "<service-account-token>"
+grafaha_host = "https://<grafana-host>"
 lighstep_api_key = "<cloud-observability-api-token>"
 ```

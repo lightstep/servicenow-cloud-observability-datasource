@@ -152,7 +152,6 @@ export class DataSource extends DataSourceApi<LightstepQuery, LightstepDataSourc
  * Translates Grafana dashboard variables into a set of LS API template
  * variables
  */
-
 export function createRequestVariables(scopedVars?: ScopedVars) {
   return getTemplateSrv()
     .getVariables()

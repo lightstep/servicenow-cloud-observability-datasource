@@ -13,5 +13,3 @@ resource "grafana_data_source" "demo" {
     apiKey = var.lighstep_api_key
   })
 }
-
-
